@@ -13,8 +13,8 @@ public class Post {
 
     private String postPicture;
     private String postCaption;
-    private long postLike;
-    private List<String> comments;
+    private List<DummyUser> userLike;
+    private List<Comment> comments;
 
     @DBRef
     private DummyUser dummyUser;
@@ -52,19 +52,19 @@ public class Post {
         this.postCaption = postCaption;
     }
 
-    public long getPostLike() {
-        return postLike;
+    public List<DummyUser> getUserLike() {
+        return userLike;
     }
 
-    public void setPostLike(long postLike) {
-        this.postLike = postLike;
+    public void setUserLike(List<DummyUser> userLike) {
+        this.userLike = userLike;
     }
 
-    public List<String> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(List<String> comments) {
+    public void setComments(List<Comment > comments) {
         this.comments = comments;
     }
 

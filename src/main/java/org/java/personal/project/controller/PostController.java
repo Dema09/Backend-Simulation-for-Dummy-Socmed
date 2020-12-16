@@ -1,5 +1,7 @@
 package org.java.personal.project.controller;
 
+import org.java.personal.project.dto.request.CommentPostDTO;
+import org.java.personal.project.dto.request.LikePostDTO;
 import org.java.personal.project.dto.request.UserPostDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.PostService;
@@ -27,9 +29,21 @@ public class PostController {
     }
 
     @GetMapping("/getUserPost/{userId}")
-    private ResponseEntity getUserPostById(@PathVariable String userId){
+    private ResponseEntity getUserPostById(@PathVariable String userId) throws IOException {
         StatusResponse getUserPostResponse = postService.getUserPostById(userId);
         return new ResponseEntity(getUserPostResponse, getUserPostResponse.getResponse());
+    }
+
+    @PostMapping("/comment/{postId}")
+    private ResponseEntity commentToOtherUser(@PathVariable String postId, @RequestBody CommentPostDTO commentPostDTO){
+        StatusResponse commentResponse = postService.commentToUserPost(commentPostDTO, postId);
+        return new ResponseEntity(commentResponse, commentResponse.getResponse());
+    }
+
+    @PostMapping("/likePost")
+    private ResponseEntity likePost(@RequestBody LikePostDTO likePostDTO){
+        StatusResponse likeResponse = postService.likePost(likePostDTO.getPostId(),likePostDTO.getUserId());
+        return new ResponseEntity(likeResponse, likeResponse.getResponse());
     }
 
 }
