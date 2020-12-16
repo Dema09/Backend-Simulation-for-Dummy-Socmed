@@ -76,6 +76,7 @@ public class PostServiceImpl implements PostService {
         }
         headPostResponse.setPosts(postResponses);
         return statusResponse.statusOk(headPostResponse);
+
     }
 
     private List<UserLikeResponse> insertUserLikeResponse(List<DummyUser> userLikes) {
