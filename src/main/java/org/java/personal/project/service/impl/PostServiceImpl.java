@@ -68,9 +68,9 @@ public class PostServiceImpl implements PostService {
             PostResponse postResponse = new PostResponse();
             postResponse.setPostBase64(convertImageToBase64String(post.getPostPicture()));
             postResponse.setCaption(post.getPostCaption());
-            postResponse.setNumberOfLikes(post.getUserLike().size());
-            postResponse.setLikes(insertUserLikeResponse(post.getUserLike()));
-            postResponse.setComments(insertCommentResponse(post.getComments(), post));
+            postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
+            postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
+            postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments(), post));
 
             postResponses.add(postResponse);
         }
