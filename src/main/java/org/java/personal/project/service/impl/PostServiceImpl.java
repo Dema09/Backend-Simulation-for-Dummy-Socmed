@@ -1,5 +1,6 @@
 package org.java.personal.project.service.impl;
 
+import org.java.personal.project.constant.MediaFormatEnum;
 import org.java.personal.project.dao.CommentRepository;
 import org.java.personal.project.dao.PostRepository;
 import org.java.personal.project.dao.UserRepository;
@@ -42,15 +43,20 @@ public class PostServiceImpl implements PostService {
     @Override
     public StatusResponse postPictureFromUser(UserPostDTO userPostDTO, String userId) throws IOException {
         StatusResponse statusResponse = new StatusResponse();
+        List<String> postCollections = new ArrayList<>();
+
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
             return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID + userId + IS_NOT_EXISTS.getMessage(), null);
 
-        Post currentPost = new Post(
-                convertImage(userPostDTO.getPostPicture().getBytes(), userPostDTO.getPostPicture()),
-                userPostDTO.getCaption(),
-                currentUser
-        );
+        Post currentPost = new Post();
+        for(MultipartFile file : userPostDTO.getPostPicture()){
+            currentPost.setPostPicture(convertImage(file.getBytes(), file, postCollections));
+        }
+
+        currentPost.setPostCaption(userPostDTO.getCaption());
+        currentPost.setDummyUser(currentUser);
+
         postRepository.save(currentPost);
         return statusResponse.statusCreated(POST_HAS_BEEN_CREATED.getMessage(), currentPost);
     }
@@ -60,13 +66,14 @@ public class PostServiceImpl implements PostService {
         StatusResponse statusResponse = new StatusResponse();
         HeadPostResponse headPostResponse = new HeadPostResponse();
         List<PostResponse> postResponses = new ArrayList<>();
+        List<String> postBases64 = new ArrayList<>();
 
         DummyUser dummyUser = userRepository.findOne(userId);
         List<Post> currentPostByUser = postRepository.getAllByDummyUser(dummyUser);
 
         for(Post post : currentPostByUser){
             PostResponse postResponse = new PostResponse();
-            postResponse.setPostBase64(convertImageToBase64String(post.getPostPicture()));
+            postResponse.setPostBase64(convertImageToBase64String(post.getPostPicture(), postBases64));
             postResponse.setCaption(post.getPostCaption());
             postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
             postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
@@ -151,22 +158,30 @@ public class PostServiceImpl implements PostService {
         return statusResponse.statusOk(POST_WITH_ID.getMessage() + postId + LIKED_BY.getMessage() + currentUser.getUsername());
     }
 
-    private String convertImageToBase64String(String postPicture) throws IOException {
+    private List<String> convertImageToBase64String(List<String> postPictures, List<String> postBases64) throws IOException {
 
-        File currentPostFile = new File(env.getProperty("postPicturePath") + postPicture);
-        if(currentPostFile == null)
-            return PICTURE_CANNOT_LOAD_PROPERLY.getMessage();
+        for(String postPicture : postPictures){
+            File currentPostFile = new File(env.getProperty("postPicturePath") + postPicture);
+            if(currentPostFile == null)
+                return new ArrayList<>();
 
-        byte[] postFileByte = Files.readAllBytes(currentPostFile.toPath().toAbsolutePath());
-        String postFileInString = Base64.getEncoder().encodeToString(postFileByte);
+            byte[] postFileByte = Files.readAllBytes(currentPostFile.toPath().toAbsolutePath());
+            String postFileInString = Base64.getEncoder().encodeToString(postFileByte);
+            postBases64.add(postFileInString);
+        }
 
-        return postFileInString;
+        return postBases64;
 
     }
 
-    private String convertImage(byte[] data, MultipartFile file) throws IOException {
+    private List<String> convertImage(byte[] data, MultipartFile file, List<String> postCollections) throws IOException {
 
         File postFile = new File(env.getProperty("postPicturePath") + file.getOriginalFilename());
+        String substringPost = file.getOriginalFilename().substring(file.getOriginalFilename().indexOf("."));
+
+        if(!substringPost.equalsIgnoreCase(MediaFormatEnum.JPEG.getMessage()) && !substringPost.equalsIgnoreCase(MediaFormatEnum.JPG.getMessage()) && !substringPost.equalsIgnoreCase(MediaFormatEnum.PNG.getMessage()))
+            throw new IOException(INVALID_POST_FORMAT.getMessage());
+
         InputStream inputStream = file.getInputStream();
 
         int read = 0;
@@ -178,7 +193,9 @@ public class PostServiceImpl implements PostService {
         file.transferTo(postFile);
         postFile.getAbsolutePath();
 
-        return file.getOriginalFilename();
+        postCollections.add(file.getOriginalFilename());
+
+        return postCollections;
     }
 
 }

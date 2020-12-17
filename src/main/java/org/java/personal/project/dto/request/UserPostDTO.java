@@ -3,14 +3,14 @@ package org.java.personal.project.dto.request;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserPostDTO {
-    private MultipartFile postPicture;
+    private MultipartFile[] postPicture;
     private String caption;
 
-    public MultipartFile getPostPicture() {
+    public MultipartFile[] getPostPicture() {
         return postPicture;
     }
 
-    public void setPostPicture(MultipartFile postPicture) {
+    public void setPostPicture(MultipartFile[] postPicture) {
         this.postPicture = postPicture;
     }
 

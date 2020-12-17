@@ -3,17 +3,17 @@ package org.java.personal.project.dto.response;
 import java.util.List;
 
 public class PostResponse {
-    private String postBase64;
+    private List<String> postBase64;
     private String caption;
     private Integer numberOfLikes;
     private List<UserLikeResponse> likes;
     private List<CommentResponseDTO> comments;
 
-    public String getPostBase64() {
+    public List<String> getPostBase64() {
         return postBase64;
     }
 
-    public void setPostBase64(String postBase64) {
+    public void setPostBase64(List<String> postBase64) {
         this.postBase64 = postBase64;
     }
 

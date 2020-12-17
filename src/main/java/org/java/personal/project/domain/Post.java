@@ -11,7 +11,7 @@ public class Post {
     @Id
     private String postId;
 
-    private String postPicture;
+    private List<String> postPicture;
     private String postCaption;
     private List<DummyUser> userLike;
     private List<Comment> comments;
@@ -22,8 +22,7 @@ public class Post {
     public Post() {
     }
 
-    public Post(String postPicture, String postCaption, DummyUser dummyUser) {
-        this.postPicture = postPicture;
+    public Post(String postCaption, DummyUser dummyUser) {
         this.postCaption = postCaption;
         this.dummyUser = dummyUser;
     }
@@ -36,11 +35,11 @@ public class Post {
         this.postId = postId;
     }
 
-    public String getPostPicture() {
+    public List<String> getPostPicture() {
         return postPicture;
     }
 
-    public void setPostPicture(String postPicture) {
+    public void setPostPicture(List<String> postPicture) {
         this.postPicture = postPicture;
     }
 

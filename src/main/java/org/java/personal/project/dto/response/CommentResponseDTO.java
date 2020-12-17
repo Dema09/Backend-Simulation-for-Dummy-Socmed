@@ -1,7 +1,5 @@
 package org.java.personal.project.dto.response;
 
-import org.java.personal.project.domain.DummyUser;
-
 public class CommentResponseDTO {
     private String comment;
     private String author;
