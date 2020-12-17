@@ -10,7 +10,8 @@ public enum AppEnum {
     SUCCESSFULLY_ADD_COMMENT("Successfully add your comment!"),
     POST_WITH_ID("This post with id: "),
     LIKED_BY(" liked by: "),
-    INVALID_POST_FORMAT("Your posts format is invalid!");
+    INVALID_POST_FORMAT("Your posts format is invalid!"),
+    CAN_NOT_ENCODE_THE_VIDEO("Can't encode the video");
 
     private String message;
 

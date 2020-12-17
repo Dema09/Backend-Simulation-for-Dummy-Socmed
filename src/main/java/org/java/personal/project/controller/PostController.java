@@ -23,7 +23,7 @@ public class PostController {
     }
 
     @PostMapping("/createPost/{userId}")
-    private ResponseEntity postPictureFromUser(@ModelAttribute UserPostDTO userPostDTO, @PathVariable String userId) throws IOException {
+    private ResponseEntity postPictureFromUser(@ModelAttribute UserPostDTO userPostDTO, @PathVariable String userId) throws Exception {
         StatusResponse postPictureResponse = postService.postPictureFromUser(userPostDTO, userId);
         return new ResponseEntity(postPictureResponse, postPictureResponse.getResponse());
     }
