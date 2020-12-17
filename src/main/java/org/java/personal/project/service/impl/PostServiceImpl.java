@@ -43,7 +43,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public StatusResponse postPictureFromUser(UserPostDTO userPostDTO, String userId) throws IOException {
+    public StatusResponse postPictureFromUser(UserPostDTO userPostDTO, String userId) throws Exception {
         StatusResponse statusResponse = new StatusResponse();
         List<String> postCollections = new ArrayList<>();
 
@@ -174,7 +174,7 @@ public class PostServiceImpl implements PostService {
         return postBases64;
     }
 
-    private List<String> convertImage(byte[] data, MultipartFile file, List<String> postCollections) throws IOException {
+    private List<String> convertImage(byte[] data, MultipartFile file, List<String> postCollections) throws Exception {
         ValidationUtil validationUtil = new ValidationUtil();
         File postFile = new File(env.getProperty("postPicturePath") + file.getOriginalFilename());
         String substringPost = file.getOriginalFilename().substring(file.getOriginalFilename().indexOf("."));
@@ -193,7 +193,7 @@ public class PostServiceImpl implements PostService {
         }
 
         if(validationUtil.isVideo(substringPost))
-            convertVideoToMp4(file, outputStream, postFile);
+            convertVideoToMp4(file, postFile);
 
         file.transferTo(postFile);
         postFile.getAbsolutePath();
@@ -203,7 +203,7 @@ public class PostServiceImpl implements PostService {
         return postCollections;
     }
 
-    private void convertVideoToMp4(MultipartFile file, OutputStream outputStream, File postFile) {
+    private void convertVideoToMp4(MultipartFile file, File postFile) throws Exception {
         File targetFile = new File(env.getProperty("postPicturePath") +
                 file.getOriginalFilename().replace(file.getOriginalFilename().substring(file.getOriginalFilename().indexOf(".")),MediaFormatEnum.MP4.getMessage()));
 
@@ -228,7 +228,7 @@ public class PostServiceImpl implements PostService {
             ws.schild.jave.Encoder encoder = new Encoder();
             encoder.encode((List<MultimediaObject>) postFile, targetFile, attributes);
         }catch(Exception e){
-
+            throw new Exception(CAN_NOT_ENCODE_THE_VIDEO.getMessage(),e);
         }
 
     }

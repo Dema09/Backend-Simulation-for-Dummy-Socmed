@@ -9,7 +9,7 @@ import java.io.IOException;
 
 @Service
 public interface PostService {
-    StatusResponse postPictureFromUser(UserPostDTO userPostDTO, String userId) throws IOException;
+    StatusResponse postPictureFromUser(UserPostDTO userPostDTO, String userId) throws Exception;
 
     StatusResponse getUserPostById(String userId) throws IOException;
 
