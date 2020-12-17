@@ -9,7 +9,9 @@ public enum AppEnum {
     USER_NOT_FOUND("No matched user with the id: "),
     SUCCESSFULLY_ADD_COMMENT("Successfully add your comment!"),
     POST_WITH_ID("This post with id: "),
-    LIKED_BY(" liked by: ");
+    LIKED_BY(" liked by: "),
+    INVALID_POST_FORMAT("Your posts format is invalid!");
+
     private String message;
 
     AppEnum(String message) {

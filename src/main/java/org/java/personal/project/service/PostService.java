@@ -16,4 +16,5 @@ public interface PostService {
     StatusResponse commentToUserPost(CommentPostDTO commentPostDTO, String postId);
 
     StatusResponse likePost(String postId, String userId);
+
 }
