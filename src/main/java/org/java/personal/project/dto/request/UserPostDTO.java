@@ -1,5 +1,6 @@
 package org.java.personal.project.dto.request;
 
+import org.java.personal.project.constant.MediaFormatEnum;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserPostDTO {
@@ -21,5 +22,7 @@ public class UserPostDTO {
     public void setCaption(String caption) {
         this.caption = caption;
     }
+
+
 
 }
