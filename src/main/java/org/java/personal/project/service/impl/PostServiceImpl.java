@@ -79,7 +79,7 @@ public class PostServiceImpl implements PostService {
             postResponse.setCaption(post.getPostCaption());
             postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
             postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
-            postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments(), post));
+            postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments()));
 
             postResponses.add(postResponse);
         }
@@ -100,7 +100,7 @@ public class PostServiceImpl implements PostService {
         return userLikeResponses;
     }
 
-    private List<CommentResponseDTO> insertCommentResponse(List<Comment> comments, Post post) {
+    private List<CommentResponseDTO> insertCommentResponse(List<Comment> comments) {
         List<CommentResponseDTO> commentResponseDTOS = new ArrayList<>();
 
         for(Comment comment : comments){
@@ -178,7 +178,7 @@ public class PostServiceImpl implements PostService {
         postResponse.setCaption(currentPost.getPostCaption());
         postResponse.setNumberOfLikes(currentPost.getUserLike().size());
         postResponse.setLikes(insertUserLikeResponse(currentPost.getUserLike()));
-        postResponse.setComments(insertCommentResponse(currentPost.getComments(),currentPost));
+        postResponse.setComments(insertCommentResponse(currentPost.getComments()));
 
         return statusResponse.statusOk(postResponse);
     }
