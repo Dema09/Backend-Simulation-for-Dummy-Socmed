@@ -11,7 +11,9 @@ public enum AppEnum {
     POST_WITH_ID("This post with id: "),
     LIKED_BY(" liked by: "),
     INVALID_POST_FORMAT("Your posts format is invalid!"),
-    CAN_NOT_ENCODE_THE_VIDEO("Can't encode the video");
+    CAN_NOT_ENCODE_THE_VIDEO("Can't encode the video"),
+    UPDATE_CAPTION_SUCCESSFULLY("Successfully updated your post's caption with post id: "),
+    DELETE_POST_SUCCESSFULLY("Successfully delete your post with id: ");
 
     private String message;
 

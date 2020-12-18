@@ -8,6 +8,7 @@ import org.java.personal.project.domain.Comment;
 import org.java.personal.project.domain.DummyUser;
 import org.java.personal.project.domain.Post;
 import org.java.personal.project.dto.request.CommentPostDTO;
+import org.java.personal.project.dto.request.UpdatePostDTO;
 import org.java.personal.project.dto.request.UserPostDTO;
 import org.java.personal.project.dto.response.*;
 import org.java.personal.project.service.PostService;
@@ -181,6 +182,41 @@ public class PostServiceImpl implements PostService {
         postResponse.setComments(insertCommentResponse(currentPost.getComments()));
 
         return statusResponse.statusOk(postResponse);
+    }
+
+    @Override
+    public StatusResponse updateCaptionPost(UpdatePostDTO updatePostDTO, String userId) {
+        StatusResponse statusResponse = new StatusResponse();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage() + userId, null);
+
+        Post currentPost = postRepository.getPostByPostIdAndAndDummyUser(updatePostDTO.getPostId(), currentUser);
+        if(currentPost == null)
+            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
+
+        currentPost.setUpdated(true);
+        currentPost.setPostCaption(updatePostDTO.getCaption());
+
+        postRepository.save(currentPost);
+        return statusResponse.statusOk(UPDATE_CAPTION_SUCCESSFULLY.getMessage() + currentPost.getPostId());
+    }
+
+    @Override
+    public StatusResponse deleteUserPostByPostId(String postId, String userId) {
+        StatusResponse statusResponse = new StatusResponse();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage() + userId, null);
+
+        Post currentPost = postRepository.getPostByPostIdAndAndDummyUser(postId, currentUser);
+        if(currentPost == null)
+            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
+
+        postRepository.delete(currentPost);
+        return statusResponse.statusOk(DELETE_POST_SUCCESSFULLY.getMessage() + postId);
     }
 
     private List<String> convertImageToBase64String(List<String> postPictures, List<String> postBases64) throws IOException {
