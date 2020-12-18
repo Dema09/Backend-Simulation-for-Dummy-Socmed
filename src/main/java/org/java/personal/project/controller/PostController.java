@@ -2,6 +2,7 @@ package org.java.personal.project.controller;
 
 import org.java.personal.project.dto.request.CommentPostDTO;
 import org.java.personal.project.dto.request.LikePostDTO;
+import org.java.personal.project.dto.request.UpdatePostDTO;
 import org.java.personal.project.dto.request.UserPostDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.PostService;
@@ -50,6 +51,18 @@ public class PostController {
     private ResponseEntity getOnePostFromUser(@PathVariable String postId, @PathVariable String userId) throws IOException {
         StatusResponse getPostResponse = postService.getOnePostByUserId(postId,userId);
         return new ResponseEntity(getPostResponse, getPostResponse.getResponse());
+    }
+
+    @PutMapping("/updatePost/{userId}")
+    private ResponseEntity updateCaption(@RequestBody UpdatePostDTO updatePostDTO, @PathVariable String userId){
+        StatusResponse updatePostResponse = postService.updateCaptionPost(updatePostDTO, userId);
+        return new ResponseEntity(updatePostResponse, updatePostResponse.getResponse());
+    }
+
+    @DeleteMapping("/deletePost/{postId}/{userId}")
+    private ResponseEntity deletePost(@PathVariable String postId, @PathVariable String userId){
+        StatusResponse deletePostResponse = postService.deleteUserPostByPostId(postId, userId);
+        return new ResponseEntity(deletePostResponse, deletePostResponse.getResponse());
     }
 
 }

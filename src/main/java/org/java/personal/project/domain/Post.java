@@ -13,6 +13,7 @@ public class Post {
 
     private List<String> postPicture;
     private String postCaption;
+    private boolean isUpdated;
     private List<DummyUser> userLike;
     private List<Comment> comments;
 
@@ -61,6 +62,14 @@ public class Post {
 
     public List<Comment> getComments() {
         return comments;
+    }
+
+    public boolean isUpdated() {
+        return isUpdated;
+    }
+
+    public void setUpdated(boolean updated) {
+        isUpdated = updated;
     }
 
     public void setComments(List<Comment > comments) {
