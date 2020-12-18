@@ -17,4 +17,6 @@ public interface PostService {
 
     StatusResponse likePost(String postId, String userId);
 
+    StatusResponse getOnePostByUserId(String postId,String userId) throws IOException;
+
 }

@@ -28,7 +28,7 @@ public class PostController {
         return new ResponseEntity(postPictureResponse, postPictureResponse.getResponse());
     }
 
-    @GetMapping("/getUserPost/{userId}")
+    @GetMapping("/getAllUserPost/{userId}")
     private ResponseEntity getUserPostById(@PathVariable String userId) throws IOException {
         StatusResponse getUserPostResponse = postService.getUserPostById(userId);
         return new ResponseEntity(getUserPostResponse, getUserPostResponse.getResponse());
@@ -42,8 +42,14 @@ public class PostController {
 
     @PostMapping("/likePost")
     private ResponseEntity likePost(@RequestBody LikePostDTO likePostDTO){
-        StatusResponse likeResponse = postService.likePost(likePostDTO.getPostId(),likePostDTO.getUserId());
+        StatusResponse likeResponse = postService.likePost(likePostDTO.getPostId(), likePostDTO.getUserId());
         return new ResponseEntity(likeResponse, likeResponse.getResponse());
+    }
+
+    @GetMapping("/getPost/{postId}/{userId}")
+    private ResponseEntity getOnePostFromUser(@PathVariable String postId, @PathVariable String userId) throws IOException {
+        StatusResponse getPostResponse = postService.getOnePostByUserId(postId,userId);
+        return new ResponseEntity(getPostResponse, getPostResponse.getResponse());
     }
 
 }

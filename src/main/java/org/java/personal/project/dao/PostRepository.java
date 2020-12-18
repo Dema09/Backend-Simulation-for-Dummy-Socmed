@@ -12,4 +12,5 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     List<Post> getAllByDummyUser(DummyUser dummyUser);
 
+    Post getPostByPostIdAndAndDummyUser(String postId, DummyUser dummyUser);
 }

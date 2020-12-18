@@ -160,6 +160,29 @@ public class PostServiceImpl implements PostService {
         return statusResponse.statusOk(POST_WITH_ID.getMessage() + postId + LIKED_BY.getMessage() + currentUser.getUsername());
     }
 
+    @Override
+    public StatusResponse getOnePostByUserId(String postId, String userId) throws IOException {
+        StatusResponse statusResponse = new StatusResponse();
+        List<String> postBases64 = new ArrayList<>();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage() + userId, null);
+
+        Post currentPost = postRepository.getPostByPostIdAndAndDummyUser(postId, currentUser);
+        if(currentPost == null)
+            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.setPostBase64(convertImageToBase64String(currentPost.getPostPicture(), postBases64));
+        postResponse.setCaption(currentPost.getPostCaption());
+        postResponse.setNumberOfLikes(currentPost.getUserLike().size());
+        postResponse.setLikes(insertUserLikeResponse(currentPost.getUserLike()));
+        postResponse.setComments(insertCommentResponse(currentPost.getComments(),currentPost));
+
+        return statusResponse.statusOk(postResponse);
+    }
+
     private List<String> convertImageToBase64String(List<String> postPictures, List<String> postBases64) throws IOException {
 
         for(String postPicture : postPictures){
