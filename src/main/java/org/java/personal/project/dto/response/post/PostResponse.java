@@ -1,4 +1,4 @@
-package org.java.personal.project.dto.response;
+package org.java.personal.project.dto.response.post;
 
 import java.util.List;
 

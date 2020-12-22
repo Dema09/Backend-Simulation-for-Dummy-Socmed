@@ -1,4 +1,4 @@
-package org.java.personal.project.dto.response;
+package org.java.personal.project.dto.response.post;
 
 public class UserLikeResponse {
     private String userId;

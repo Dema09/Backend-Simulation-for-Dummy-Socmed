@@ -1,4 +1,4 @@
-package org.java.personal.project.dto.request;
+package org.java.personal.project.dto.request.post;
 
 public class UpdatePostDTO {
     private String postId;
