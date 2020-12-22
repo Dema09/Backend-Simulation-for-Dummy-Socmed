@@ -59,6 +59,7 @@ public class PostServiceImpl implements PostService {
 
         currentPost.setPostCaption(userPostDTO.getCaption());
         currentPost.setDummyUser(currentUser);
+        currentPost.setPersisted(true);
 
         postRepository.save(currentPost);
         return statusResponse.statusCreated(POST_HAS_BEEN_CREATED.getMessage(), currentPost);
