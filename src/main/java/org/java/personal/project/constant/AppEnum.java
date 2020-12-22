@@ -13,7 +13,8 @@ public enum AppEnum {
     INVALID_POST_FORMAT("Your posts format is invalid!"),
     CAN_NOT_ENCODE_THE_VIDEO("Can't encode the video"),
     UPDATE_CAPTION_SUCCESSFULLY("Successfully updated your post's caption with post id: "),
-    DELETE_POST_SUCCESSFULLY("Successfully delete your post with id: ");
+    DELETE_POST_SUCCESSFULLY("Successfully delete your post with id: "),
+    STORY_HAS_BEEN_CREATED("Your story has been created!");
 
     private String message;
 

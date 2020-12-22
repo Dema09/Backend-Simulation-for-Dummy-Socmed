@@ -1,6 +1,5 @@
-package org.java.personal.project.dto.request;
+package org.java.personal.project.dto.request.post;
 
-import org.java.personal.project.constant.MediaFormatEnum;
 import org.springframework.web.multipart.MultipartFile;
 
 public class UserPostDTO {
