@@ -11,7 +11,6 @@ import org.java.personal.project.util.ConvertImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +51,6 @@ public class StoryServiceImpl implements StoryService {
     }
 
     private List<DummyUser> insertMentionPeopleInTheStory(List<String> mentionUsernames) {
-
         List<DummyUser> mentionUsers = new ArrayList<>();
         for(String mentionUsername : mentionUsernames){
             DummyUser mentionUser = userRepository.findDummyUserByUsername(mentionUsername);
@@ -60,4 +58,5 @@ public class StoryServiceImpl implements StoryService {
         }
         return mentionUsers;
     }
+
 }

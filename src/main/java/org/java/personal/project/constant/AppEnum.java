@@ -14,7 +14,9 @@ public enum AppEnum {
     CAN_NOT_ENCODE_THE_VIDEO("Can't encode the video"),
     UPDATE_CAPTION_SUCCESSFULLY("Successfully updated your post's caption with post id: "),
     DELETE_POST_SUCCESSFULLY("Successfully delete your post with id: "),
-    STORY_HAS_BEEN_CREATED("Your story has been created!");
+    STORY_HAS_BEEN_CREATED("Your story has been created!"),
+    USER_WITH_USERNAME("User with username: "),
+    REST_TEMPLATE_URL("http://localhost:9000/v1/searchUser/{username}");
 
     private String message;
 
