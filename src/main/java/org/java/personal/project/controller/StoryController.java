@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.ws.Response;
+
 @RestController
 @RequestMapping("/v1")
 public class StoryController {
@@ -22,5 +24,11 @@ public class StoryController {
     private ResponseEntity createStory(@ModelAttribute StoryRequestDTO storyRequestDTO, @PathVariable String userId) throws Exception {
         StatusResponse createStoryResponse = storyService.createStory(storyRequestDTO, userId);
         return new ResponseEntity(createStoryResponse, createStoryResponse.getResponse());
+    }
+
+    @GetMapping("/getStoryArchive/{userId}")
+    private ResponseEntity getUserStoryByUserId(@PathVariable String userId){
+        StatusResponse getUserStoryResponse = storyService.getUserStoryByUserId(userId);
+        return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
     }
 }

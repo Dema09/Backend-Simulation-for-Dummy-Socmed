@@ -6,12 +6,13 @@ import org.java.personal.project.domain.DummyUser;
 import org.java.personal.project.domain.Story;
 import org.java.personal.project.dto.request.story.StoryRequestDTO;
 import org.java.personal.project.dto.response.StatusResponse;
+import org.java.personal.project.dto.response.story.HeadStoryResponse;
+import org.java.personal.project.dto.response.story.StoryResponse;
 import org.java.personal.project.service.StoryService;
 import org.java.personal.project.util.ConvertImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +52,42 @@ public class StoryServiceImpl implements StoryService {
         return statusResponse.statusCreated(STORY_HAS_BEEN_CREATED.getMessage(), currentStory);
     }
 
-    private List<DummyUser> insertMentionPeopleInTheStory(List<String> mentionUsernames) {
+    @Override
+    public StatusResponse getUserStoryByUserId(String userId) {
+        StatusResponse statusResponse = new StatusResponse();
+        HeadStoryResponse headStoryResponse = new HeadStoryResponse();
+        List<StoryResponse> storyResponses = new ArrayList<>();
 
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage(), userId + IS_NOT_EXISTS.getMessage());
+
+        List<Story> currentUsersStories = storyRepository.findStoryByCurrentUserStory(currentUser);
+        if(currentUsersStories.size() == 0 || currentUsersStories == null)
+            return statusResponse.statusOk(new ArrayList<>());
+
+        for(Story story : currentUsersStories){
+            StoryResponse storyResponse = new StoryResponse();
+            storyResponse.setStoryId(story.getStoryId());
+            storyResponse.setUsername(story.getCurrentUserStory().getUsername());
+            storyResponse.setMentionedUsers(insertMentionedUsers(story));
+            storyResponse.setStoryFileBase64(story.getStoryFileName());
+
+            storyResponses.add(storyResponse);
+        }
+        headStoryResponse.setStories(storyResponses);
+        return statusResponse.statusOk(headStoryResponse);
+    }
+
+    private List<String> insertMentionedUsers(Story story) {
+        List<String> mentionUsers = new ArrayList<>();
+        for(DummyUser dummyUser: story.getMentionPeople()){
+            mentionUsers.add(dummyUser.getUsername());
+        }
+        return mentionUsers;
+    }
+
+    private List<DummyUser> insertMentionPeopleInTheStory(List<String> mentionUsernames) {
         List<DummyUser> mentionUsers = new ArrayList<>();
         for(String mentionUsername : mentionUsernames){
             DummyUser mentionUser = userRepository.findDummyUserByUsername(mentionUsername);
@@ -60,4 +95,5 @@ public class StoryServiceImpl implements StoryService {
         }
         return mentionUsers;
     }
+
 }
