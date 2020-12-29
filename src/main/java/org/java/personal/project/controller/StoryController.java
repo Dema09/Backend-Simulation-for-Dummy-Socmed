@@ -1,5 +1,6 @@
 package org.java.personal.project.controller;
 
+import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
 import org.java.personal.project.dto.request.story.StoryRequestDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.StoryService;
@@ -30,5 +31,11 @@ public class StoryController {
     private ResponseEntity getUserStoryByUserId(@PathVariable String userId){
         StatusResponse getUserStoryResponse = storyService.getUserStoryByUserId(userId);
         return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
+    }
+
+    @PostMapping("/createCollection")
+    private ResponseEntity createStoryCollection(@RequestBody StoryCollectionRequestDTO storyCollectionRequestDTO, @RequestHeader(value = "userId") String userId){
+        StatusResponse createStoryCollectionResponse = storyService.createStoryCollection(storyCollectionRequestDTO, userId);
+        return new ResponseEntity(createStoryCollectionResponse, createStoryCollectionResponse.getResponse());
     }
 }

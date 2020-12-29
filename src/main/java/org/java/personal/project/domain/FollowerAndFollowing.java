@@ -10,14 +10,14 @@ public class FollowerAndFollowing {
 
     private DummyUser currentUser;
 
-    private List<Follower> followers;
+    private List<DummyUser> followers;
 
-    private List<Following> followings;
+    private List<DummyUser> followings;
 
     public FollowerAndFollowing() {
     }
 
-    public FollowerAndFollowing(String followerAndFollowingId, DummyUser currentUser, List<Follower> followers, List<Following> followings) {
+    public FollowerAndFollowing(String followerAndFollowingId, DummyUser currentUser, List<DummyUser> followers, List<DummyUser> followings) {
         this.followerAndFollowingId = followerAndFollowingId;
         this.currentUser = currentUser;
         this.followers = followers;
@@ -40,19 +40,19 @@ public class FollowerAndFollowing {
         this.currentUser = currentUser;
     }
 
-    public List<Follower> getFollowers() {
+    public List<DummyUser> getFollowers() {
         return followers;
     }
 
-    public void setFollowers(List<Follower> followers) {
+    public void setFollowers(List<DummyUser> followers) {
         this.followers = followers;
     }
 
-    public List<Following> getFollowings() {
+    public List<DummyUser> getFollowings() {
         return followings;
     }
 
-    public void setFollowings(List<Following> followings) {
+    public void setFollowings(List<DummyUser> followings) {
         this.followings = followings;
     }
 }
