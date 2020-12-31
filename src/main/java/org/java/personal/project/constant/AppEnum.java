@@ -15,7 +15,9 @@ public enum AppEnum {
     UPDATE_CAPTION_SUCCESSFULLY("Successfully updated your post's caption with post id: "),
     DELETE_POST_SUCCESSFULLY("Successfully delete your post with id: "),
     STORY_HAS_BEEN_CREATED("Your story has been created!"),
-    SUCCESSFULLY_CREATE_COLLECTION("Successfully create collection!");
+    SUCCESSFULLY_CREATE_COLLECTION("Successfully create collection!"),
+    SUCCESSFULLY_UPDATE_COLLECTION_WITH_COLLECTION_ID("Successfully update your collection with collection id: "),
+    USER_STORY_IS_NOT_FOUND("Cannot find the story collection with id: ");
 
     private String message;
 

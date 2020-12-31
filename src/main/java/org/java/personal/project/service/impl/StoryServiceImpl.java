@@ -7,16 +7,19 @@ import org.java.personal.project.domain.DummyUser;
 import org.java.personal.project.domain.Story;
 import org.java.personal.project.domain.StoryCollection;
 import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
+import org.java.personal.project.dto.request.story.StoryCollectionWhenUpdateRequestDTO;
 import org.java.personal.project.dto.request.story.StoryRequestDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.dto.response.story.HeadStoryResponse;
 import org.java.personal.project.dto.response.story.StoryResponse;
+import org.java.personal.project.dto.response.story.StoryResponseAfterUpdate;
 import org.java.personal.project.service.StoryService;
 import org.java.personal.project.util.ConvertImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.java.personal.project.constant.AppEnum.*;
@@ -100,6 +103,72 @@ public class StoryServiceImpl implements StoryService {
 
         storyCollectionRepository.save(storyCollection);
         return statusResponse.statusCreated(SUCCESSFULLY_CREATE_COLLECTION.getMessage(), storyCollection);
+    }
+
+    @Override
+    public StatusResponse updateStoryCollection(StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, String userId) {
+        StatusResponse statusResponse = new StatusResponse();
+        DummyUser currentUser = userRepository.findOne(userId);
+        StoryResponseAfterUpdate response = new StoryResponseAfterUpdate();
+        List<String> failedCollectionIds = new ArrayList<>();
+
+        if(currentUser == null)
+            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
+
+        Iterator<String> deletedStoryIdIterator = storyCollectionWhenUpdateRequestDTO.getDeletedStoryIdList().iterator();
+        while(deletedStoryIdIterator.hasNext()){
+            String deletedStoryId = deletedStoryIdIterator.next();
+            Story checkStory = storyRepository.findOne(deletedStoryId);
+            if(!deletedStoryId.equals(checkStory.getStoryId()))
+                failedCollectionIds.add(deletedStoryId);
+        }
+
+        StoryCollection storyCollection = storyCollectionRepository.findOne(storyCollectionWhenUpdateRequestDTO.getCollectionId());
+        List<Story> stories = storyCollection.getStories();
+
+        if(storyCollection == null)
+            return statusResponse.statusNotFound(USER_STORY_IS_NOT_FOUND.getMessage() + storyCollectionWhenUpdateRequestDTO.getCollectionId(), null);
+
+        //TODO: This functionality might allows users only to delete their stories,
+        // delete and insert another stories, or only to insert stories to user's collection
+        removeStoryFromCollection(storyCollection, storyCollectionWhenUpdateRequestDTO, stories);
+        insertAnotherStoryFromCollection(storyCollection, storyCollectionWhenUpdateRequestDTO, stories);
+
+        response.setCollectionId(storyCollection.getCollectionId());
+        response.setFailedCollectionId(failedCollectionIds);
+        response.setMessage(SUCCESSFULLY_UPDATE_COLLECTION_WITH_COLLECTION_ID.getMessage() + storyCollection.getCollectionId());
+
+        return statusResponse.statusOk(response);
+        
+    }
+
+    private void insertAnotherStoryFromCollection(StoryCollection storyCollection, StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, List<Story> stories) {
+        if(storyCollectionWhenUpdateRequestDTO.getAddedStoryIdList() == null)
+            return;
+
+        for(String storyId : storyCollectionWhenUpdateRequestDTO.getAddedStoryIdList()){
+            Story story = storyRepository.findOne(storyId);
+            stories.add(story);
+        }
+        storyCollection.setStories(stories);
+        storyCollectionRepository.save(storyCollection);
+    }
+
+    private void removeStoryFromCollection(StoryCollection storyCollection, StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, List<Story> stories) {
+        if(storyCollectionWhenUpdateRequestDTO.getDeletedStoryIdList() == null)
+            return;
+
+        Iterator<Story> storyIterator = storyCollection.getStories().iterator();
+        for(String deletedStoryId : storyCollectionWhenUpdateRequestDTO.getDeletedStoryIdList()){
+            while(storyIterator.hasNext()){
+                Story story = storyIterator.next();
+                if(story.getStoryId().equals(deletedStoryId))
+                    storyIterator.remove();
+            }
+        }
+
+        storyCollection.setStories(stories);
+        storyCollectionRepository.save(storyCollection);
     }
 
     private List<Story> insertStoriesIntoCollection(StoryCollectionRequestDTO storyCollectionRequestDTO) {

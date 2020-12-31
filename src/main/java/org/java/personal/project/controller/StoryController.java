@@ -1,14 +1,13 @@
 package org.java.personal.project.controller;
 
 import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
+import org.java.personal.project.dto.request.story.StoryCollectionWhenUpdateRequestDTO;
 import org.java.personal.project.dto.request.story.StoryRequestDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.StoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.xml.ws.Response;
 
 @RestController
 @RequestMapping("/v1")
@@ -37,5 +36,11 @@ public class StoryController {
     private ResponseEntity createStoryCollection(@RequestBody StoryCollectionRequestDTO storyCollectionRequestDTO, @RequestHeader(value = "userId") String userId){
         StatusResponse createStoryCollectionResponse = storyService.createStoryCollection(storyCollectionRequestDTO, userId);
         return new ResponseEntity(createStoryCollectionResponse, createStoryCollectionResponse.getResponse());
+    }
+
+    @PostMapping("/updateCollection")
+    private ResponseEntity updateStoryCollection(@RequestHeader(value = "userId") String userId, @RequestBody StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO){
+        StatusResponse updateStoryResponse = storyService.updateStoryCollection(storyCollectionWhenUpdateRequestDTO, userId);
+        return new ResponseEntity(updateStoryResponse, updateStoryResponse.getResponse());
     }
 }
