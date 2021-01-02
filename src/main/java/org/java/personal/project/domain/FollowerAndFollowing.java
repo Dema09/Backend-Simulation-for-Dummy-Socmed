@@ -1,7 +1,10 @@
 package org.java.personal.project.domain;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import java.util.Date;
 import java.util.List;
 
 public class FollowerAndFollowing {
@@ -13,6 +16,12 @@ public class FollowerAndFollowing {
     private List<DummyUser> followers;
 
     private List<DummyUser> followings;
+
+    @CreatedDate
+    private Date createdAt;
+
+    @LastModifiedDate
+    private Date updatedAt;
 
     public FollowerAndFollowing() {
     }
@@ -54,5 +63,21 @@ public class FollowerAndFollowing {
 
     public void setFollowings(List<DummyUser> followings) {
         this.followings = followings;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
