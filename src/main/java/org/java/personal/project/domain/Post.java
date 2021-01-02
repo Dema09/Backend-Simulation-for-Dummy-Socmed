@@ -27,8 +27,7 @@ public class Post implements Persistable<String> {
     private Date createdAt;
 
     @LastModifiedDate
-    private Date lastModified;
-
+    private Date updatedAt;
 
     @DBRef
     private DummyUser dummyUser;
@@ -106,11 +105,11 @@ public class Post implements Persistable<String> {
     }
 
     public Date getLastModified() {
-        return lastModified;
+        return updatedAt;
     }
 
-    public void setLastModified(Date lastModified) {
-        this.lastModified = lastModified;
+    public void setLastModified(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
