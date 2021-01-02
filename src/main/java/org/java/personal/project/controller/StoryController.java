@@ -43,4 +43,5 @@ public class StoryController {
         StatusResponse updateStoryResponse = storyService.updateStoryCollection(storyCollectionWhenUpdateRequestDTO, userId);
         return new ResponseEntity(updateStoryResponse, updateStoryResponse.getResponse());
     }
+
 }

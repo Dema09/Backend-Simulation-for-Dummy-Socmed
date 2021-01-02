@@ -10,10 +10,7 @@ import org.java.personal.project.dto.request.post.CommentPostDTO;
 import org.java.personal.project.dto.request.post.UpdatePostDTO;
 import org.java.personal.project.dto.request.post.UserPostDTO;
 import org.java.personal.project.dto.response.*;
-import org.java.personal.project.dto.response.post.CommentResponseDTO;
-import org.java.personal.project.dto.response.post.HeadPostResponse;
-import org.java.personal.project.dto.response.post.PostResponse;
-import org.java.personal.project.dto.response.post.UserLikeResponse;
+import org.java.personal.project.dto.response.post.*;
 import org.java.personal.project.service.PostService;
 import org.java.personal.project.util.ConvertImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +45,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public StatusResponse postPictureFromUser(UserPostDTO userPostDTO, String userId) throws Exception {
         StatusResponse statusResponse = new StatusResponse();
+        PostAfterInsertResponse postAfterInsertResponse = new PostAfterInsertResponse();
+
         List<String> postCollections = new ArrayList<>();
+        List<String> failedMentionedPeople = new ArrayList<>();
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
@@ -61,10 +61,29 @@ public class PostServiceImpl implements PostService {
 
         currentPost.setPostCaption(userPostDTO.getCaption());
         currentPost.setDummyUser(currentUser);
+        currentPost.setMentionedUsers(insertMentionedUsers(userPostDTO.getMentionedPeople(), failedMentionedPeople));
         currentPost.setPersisted(true);
 
         postRepository.save(currentPost);
-        return statusResponse.statusCreated(POST_HAS_BEEN_CREATED.getMessage(), currentPost);
+
+        postAfterInsertResponse.setPostId(currentPost.getPostId());
+        postAfterInsertResponse.setMessage(POST_HAS_BEEN_CREATED.getMessage());
+        postAfterInsertResponse.setFailedMentionedUsers(failedMentionedPeople);
+
+        return statusResponse.statusCreated(postAfterInsertResponse.getMessage(), postAfterInsertResponse);
+    }
+
+    private List<DummyUser> insertMentionedUsers(List<String> mentionedPeoples, List<String> failedMentionedUsers) throws Exception {
+        List<DummyUser> dummyUsers = new ArrayList<>();
+        for(String mentionedPeople : mentionedPeoples){
+            DummyUser currentUser = userRepository.findOne(mentionedPeople);
+            if(currentUser == null || mentionedPeople.equals(currentUser.getId())) {
+                failedMentionedUsers.add(mentionedPeople);
+            }else{
+                dummyUsers.add(currentUser);
+            }
+        }
+        return dummyUsers;
     }
 
     @Override
