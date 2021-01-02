@@ -19,6 +19,7 @@ public class Post implements Persistable<String> {
     private String postCaption;
     private boolean isUpdated;
     private List<DummyUser> userLike;
+    private List<DummyUser> mentionedUsers;
     private List<Comment> comments;
     private boolean persisted;
 
@@ -124,5 +125,17 @@ public class Post implements Persistable<String> {
 
     public void setPersisted(boolean persisted) {
         this.persisted = persisted;
+    }
+
+    public List<DummyUser> getMentionedUsers() {
+        return mentionedUsers;
+    }
+
+    public void setMentionedUsers(List<DummyUser> mentionedUsers) {
+        this.mentionedUsers = mentionedUsers;
+    }
+
+    public boolean isPersisted() {
+        return persisted;
     }
 }
