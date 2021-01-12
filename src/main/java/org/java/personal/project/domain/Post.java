@@ -32,6 +32,9 @@ public class Post implements Persistable<String> {
     @DBRef
     private DummyUser dummyUser;
 
+    @DBRef
+    private PostOrStoryLocation postOrStoryLocation;
+
     public Post() {
     }
 
@@ -137,4 +140,22 @@ public class Post implements Persistable<String> {
     public boolean isPersisted() {
         return persisted;
     }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public PostOrStoryLocation getPostOrStoryLocation() {
+        return postOrStoryLocation;
+    }
+
+    public void setPostOrStoryLocation(PostOrStoryLocation postOrStoryLocation) {
+        this.postOrStoryLocation = postOrStoryLocation;
+    }
+
+
 }

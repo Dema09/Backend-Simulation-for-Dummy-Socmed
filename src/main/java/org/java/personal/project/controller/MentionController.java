@@ -1,6 +1,5 @@
 package org.java.personal.project.controller;
 
-import org.java.personal.project.dto.MentionUserHeadResponse;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.MentionService;
 import org.springframework.beans.factory.annotation.Autowired;

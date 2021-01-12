@@ -1,11 +1,10 @@
 package org.java.personal.project.service.impl;
 
+import org.java.personal.project.dao.PostOrStoryLocationRepository;
 import org.java.personal.project.dao.StoryCollectionRepository;
 import org.java.personal.project.dao.StoryRepository;
 import org.java.personal.project.dao.UserRepository;
-import org.java.personal.project.domain.DummyUser;
-import org.java.personal.project.domain.Story;
-import org.java.personal.project.domain.StoryCollection;
+import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
 import org.java.personal.project.dto.request.story.StoryCollectionWhenUpdateRequestDTO;
 import org.java.personal.project.dto.request.story.StoryRequestDTO;
@@ -30,13 +29,19 @@ public class StoryServiceImpl implements StoryService {
     private final StoryRepository storyRepository;
     private final UserRepository userRepository;
     private final StoryCollectionRepository storyCollectionRepository;
+    private final PostOrStoryLocationRepository postOrStoryLocationRepository;
     private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
 
     @Autowired
-    public StoryServiceImpl(StoryRepository storyRepository, UserRepository userRepository, StoryCollectionRepository storyCollectionRepository, ConvertImageOrVideoUtil convertImageOrVideoUtil) {
+    public StoryServiceImpl(StoryRepository storyRepository,
+                            UserRepository userRepository,
+                            StoryCollectionRepository storyCollectionRepository,
+                            PostOrStoryLocationRepository postOrStoryLocationRepository,
+                            ConvertImageOrVideoUtil convertImageOrVideoUtil) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
         this.storyCollectionRepository = storyCollectionRepository;
+        this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.convertImageOrVideoUtil = convertImageOrVideoUtil;
     }
 
@@ -54,10 +59,33 @@ public class StoryServiceImpl implements StoryService {
         currentStory.setStoryFileName(storyRequestDTO.getStoryPost().getOriginalFilename());
         currentStory.setCurrentUserStory(currentUser);
         currentStory.setMentionPeople((storyRequestDTO.getMentionUsers() == null || storyRequestDTO.getMentionUsers().size() == 0) ? new ArrayList<>() : insertMentionPeopleInTheStory(storyRequestDTO.getMentionUsers()));
+        currentStory.setStoryLocation(insertStoryLocationDetails(storyRequestDTO));
+
         convertImageOrVideoUtil.convertImage(storyRequestDTO.getStoryPost().getBytes(), storyRequestDTO.getStoryPost(), storyPosts);
 
         storyRepository.save(currentStory);
         return statusResponse.statusCreated(STORY_HAS_BEEN_CREATED.getMessage(), currentStory);
+    }
+
+    private PostOrStoryLocation insertStoryLocationDetails(StoryRequestDTO storyRequestDTO) {
+        PostOrStoryLocation storyLocation = new PostOrStoryLocation();
+        storyLocation.setLocationName(storyRequestDTO.getStoryLocation().getLocationName());
+        storyLocation.setLocation(insertStoryLocation(storyRequestDTO));
+
+        postOrStoryLocationRepository.save(storyLocation);
+        return storyLocation;
+    }
+
+    private Location insertStoryLocation(StoryRequestDTO storyRequestDTO) {
+        List<Double> coordinates = new ArrayList<>();
+        coordinates.add(storyRequestDTO.getStoryLocation().getLongitude());
+        coordinates.add(storyRequestDTO.getStoryLocation().getLatitude());
+
+        Location location = new Location();
+        location.setType(POINT.getMessage());
+        location.setCoordinates(coordinates);
+
+        return location;
     }
 
     @Override
