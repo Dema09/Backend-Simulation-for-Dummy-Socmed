@@ -92,13 +92,9 @@ public class PostServiceImpl implements PostService {
     }
 
     private Location setLocationCoordinates(UserPostDTO userPostDTO) {
-        Location location = new Location();
-        List<Double> coordinates = new ArrayList<>();
-        coordinates.add(userPostDTO.getPostLocation().getLongitude());
-        coordinates.add(userPostDTO.getPostLocation().getLatitude());
-
-        location.setType(POINT.getMessage());
-        location.setCoordinates(coordinates);
+        Location location = new Location(POINT.getMessage(),
+                userPostDTO.getPostLocation().getLongitude(),
+                userPostDTO.getPostLocation().getLatitude());
 
         return location;
     }

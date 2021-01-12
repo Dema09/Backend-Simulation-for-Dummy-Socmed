@@ -77,13 +77,9 @@ public class StoryServiceImpl implements StoryService {
     }
 
     private Location insertStoryLocation(StoryRequestDTO storyRequestDTO) {
-        List<Double> coordinates = new ArrayList<>();
-        coordinates.add(storyRequestDTO.getStoryLocation().getLongitude());
-        coordinates.add(storyRequestDTO.getStoryLocation().getLatitude());
-
-        Location location = new Location();
-        location.setType(POINT.getMessage());
-        location.setCoordinates(coordinates);
+        Location location = new Location(POINT.getMessage(),
+                storyRequestDTO.getStoryLocation().getLongitude(),
+                storyRequestDTO.getStoryLocation().getLatitude());
 
         return location;
     }

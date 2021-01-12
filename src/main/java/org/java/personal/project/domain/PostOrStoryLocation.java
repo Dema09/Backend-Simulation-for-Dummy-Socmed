@@ -1,6 +1,7 @@
 package org.java.personal.project.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "post_or_story_location")
