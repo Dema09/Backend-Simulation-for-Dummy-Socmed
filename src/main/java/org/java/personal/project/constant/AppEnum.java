@@ -18,7 +18,9 @@ public enum AppEnum {
     SUCCESSFULLY_CREATE_COLLECTION("Successfully create collection!"),
     SUCCESSFULLY_UPDATE_COLLECTION_WITH_COLLECTION_ID("Successfully update your collection with collection id: "),
     USER_STORY_IS_NOT_FOUND("Cannot find the story collection with id: "),
-    THIS_MENTIONED_USER_WITH_ID("This mentioned user with id: ");
+    THIS_MENTIONED_USER_WITH_ID("This mentioned user with id: "),
+    POINT("Point");
+
 
     private String message;
 

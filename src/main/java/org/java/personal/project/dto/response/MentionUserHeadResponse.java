@@ -1,6 +1,4 @@
-package org.java.personal.project.dto;
-
-import org.java.personal.project.dto.response.MentionUserResponse;
+package org.java.personal.project.dto.response;
 
 import java.util.List;
 

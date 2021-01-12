@@ -28,6 +28,9 @@ public class Story {
     @DBRef
     private List<DummyUser> mentionPeople;
 
+    @DBRef
+    private PostOrStoryLocation storyLocation;
+
     public Story() {
     }
 
@@ -83,5 +86,13 @@ public class Story {
 
     public void setMentionPeople(List<DummyUser> mentionPeople) {
         this.mentionPeople = mentionPeople;
+    }
+
+    public PostOrStoryLocation getStoryLocation() {
+        return storyLocation;
+    }
+
+    public void setStoryLocation(PostOrStoryLocation storyLocation) {
+        this.storyLocation = storyLocation;
     }
 }

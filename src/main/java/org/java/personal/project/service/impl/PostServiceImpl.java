@@ -1,11 +1,10 @@
 package org.java.personal.project.service.impl;
 
 import org.java.personal.project.dao.CommentRepository;
+import org.java.personal.project.dao.PostOrStoryLocationRepository;
 import org.java.personal.project.dao.PostRepository;
 import org.java.personal.project.dao.UserRepository;
-import org.java.personal.project.domain.Comment;
-import org.java.personal.project.domain.DummyUser;
-import org.java.personal.project.domain.Post;
+import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.post.CommentPostDTO;
 import org.java.personal.project.dto.request.post.UpdatePostDTO;
 import org.java.personal.project.dto.request.post.UserPostDTO;
@@ -30,14 +29,21 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final PostOrStoryLocationRepository postOrStoryLocationRepository;
     private final Environment env;
     private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
 
     @Autowired
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, Environment env, ConvertImageOrVideoUtil convertImageOrVideoUtil) {
+    public PostServiceImpl(PostRepository postRepository,
+                           UserRepository userRepository,
+                           CommentRepository commentRepository,
+                           PostOrStoryLocationRepository postOrStoryLocationRepository,
+                           Environment env,
+                           ConvertImageOrVideoUtil convertImageOrVideoUtil) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.env = env;
         this.convertImageOrVideoUtil = convertImageOrVideoUtil;
     }
@@ -61,8 +67,11 @@ public class PostServiceImpl implements PostService {
 
         currentPost.setPostCaption(userPostDTO.getCaption());
         currentPost.setDummyUser(currentUser);
-        currentPost.setMentionedUsers(insertMentionedUsers(userPostDTO.getMentionedPeople(), failedMentionedPeople));
+        currentPost.setMentionedUsers(insertMentionedUsers(userPostDTO.getMentionedPeople(), failedMentionedPeople, currentUser));
         currentPost.setPersisted(true);
+
+        if(userPostDTO.getPostLocation() != null)
+        currentPost.setPostOrStoryLocation(setPostOrStoryLocation(userPostDTO));
 
         postRepository.save(currentPost);
 
@@ -73,14 +82,35 @@ public class PostServiceImpl implements PostService {
         return statusResponse.statusCreated(postAfterInsertResponse.getMessage(), postAfterInsertResponse);
     }
 
-    private List<DummyUser> insertMentionedUsers(List<String> mentionedPeoples, List<String> failedMentionedUsers) throws Exception {
+    private PostOrStoryLocation setPostOrStoryLocation(UserPostDTO userPostDTO) {
+        PostOrStoryLocation postOrStoryLocation = new PostOrStoryLocation();
+        postOrStoryLocation.setLocationName(userPostDTO.getPostLocation().getLocationName());
+        postOrStoryLocation.setLocation(setLocationCoordinates(userPostDTO));
+
+        postOrStoryLocationRepository.save(postOrStoryLocation);
+        return postOrStoryLocation;
+    }
+
+    private Location setLocationCoordinates(UserPostDTO userPostDTO) {
+        Location location = new Location();
+        List<Double> coordinates = new ArrayList<>();
+        coordinates.add(userPostDTO.getPostLocation().getLongitude());
+        coordinates.add(userPostDTO.getPostLocation().getLatitude());
+
+        location.setType(POINT.getMessage());
+        location.setCoordinates(coordinates);
+
+        return location;
+    }
+
+    private List<DummyUser> insertMentionedUsers(List<String> mentionedPeoples, List<String> failedMentionedUsers, DummyUser currentUser){
         List<DummyUser> dummyUsers = new ArrayList<>();
         for(String mentionedPeople : mentionedPeoples){
-            DummyUser currentUser = userRepository.findOne(mentionedPeople);
-            if(currentUser == null || mentionedPeople.equals(currentUser.getId())) {
+            DummyUser currentMentionedUser = userRepository.findOne(mentionedPeople);
+            if(currentMentionedUser == null || mentionedPeople.equals(currentUser.getId())) {
                 failedMentionedUsers.add(mentionedPeople);
             }else{
-                dummyUsers.add(currentUser);
+                dummyUsers.add(currentMentionedUser);
             }
         }
         return dummyUsers;
