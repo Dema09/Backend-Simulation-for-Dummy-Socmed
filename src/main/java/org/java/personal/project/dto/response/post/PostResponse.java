@@ -8,6 +8,8 @@ public class PostResponse {
     private Integer numberOfLikes;
     private List<UserLikeResponse> likes;
     private List<CommentResponseDTO> comments;
+    private LocationHeadResponse locationResponse;
+
 
     public List<String> getPostBase64() {
         return postBase64;
@@ -47,5 +49,13 @@ public class PostResponse {
 
     public void setComments(List<CommentResponseDTO> comments) {
         this.comments = comments;
+    }
+
+    public LocationHeadResponse getLocationResponse() {
+        return locationResponse;
+    }
+
+    public void setLocationResponse(LocationHeadResponse locationHeadResponse) {
+        this.locationResponse = locationHeadResponse;
     }
 }

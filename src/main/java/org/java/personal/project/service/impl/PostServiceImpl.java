@@ -83,6 +83,10 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostOrStoryLocation setPostOrStoryLocation(UserPostDTO userPostDTO) {
+        PostOrStoryLocation currentPostOrStoryLocation = postOrStoryLocationRepository.findPostOrStoryLocationByLocationName(userPostDTO.getPostLocation().getLocationName());
+        if(currentPostOrStoryLocation != null)
+            return currentPostOrStoryLocation;
+
         PostOrStoryLocation postOrStoryLocation = new PostOrStoryLocation();
         postOrStoryLocation.setLocationName(userPostDTO.getPostLocation().getLocationName());
         postOrStoryLocation.setLocation(setLocationCoordinates(userPostDTO));
@@ -129,12 +133,29 @@ public class PostServiceImpl implements PostService {
             postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
             postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
             postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments()));
+            postResponse.setLocationResponse(post.getPostOrStoryLocation() == null ? null : insertLocationResponse(post.getPostOrStoryLocation()));
 
             postResponses.add(postResponse);
         }
         headPostResponse.setPosts(postResponses);
         return statusResponse.statusOk(headPostResponse);
 
+    }
+
+    private LocationHeadResponse insertLocationResponse(PostOrStoryLocation postOrStoryLocation) {
+        LocationHeadResponse locationHeadResponse = new LocationHeadResponse();
+        locationHeadResponse.setLocationName(postOrStoryLocation.getLocationName());
+        locationHeadResponse.setLocation(insertLocationCoordinatesResponse(postOrStoryLocation.getLocation()));
+
+        return locationHeadResponse;
+    }
+
+    private LocationResponse insertLocationCoordinatesResponse(Location location) {
+        LocationResponse locationResponse = new LocationResponse();
+        locationResponse.setType(location.getType());
+        locationResponse.setCoordinates(location.getCoordinates());
+
+        return locationResponse;
     }
 
     private List<UserLikeResponse> insertUserLikeResponse(List<DummyUser> userLikes) {
