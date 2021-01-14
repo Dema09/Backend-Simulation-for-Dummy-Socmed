@@ -128,7 +128,7 @@ public class PostServiceImpl implements PostService {
 
         for(Post post : currentPostByUser){
             PostResponse postResponse = new PostResponse();
-            postResponse.setPostBase64(convertImageOrVideoUtil.convertImageToBase64String(post.getPostPicture(), postBases64));
+            postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
             postResponse.setCaption(post.getPostCaption());
             postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
             postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
@@ -244,11 +244,12 @@ public class PostServiceImpl implements PostService {
             return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
 
         PostResponse postResponse = new PostResponse();
-        postResponse.setPostBase64(convertImageOrVideoUtil.convertImageToBase64String(currentPost.getPostPicture(), postBases64));
+        postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(currentPost.getPostPicture(), postBases64));
         postResponse.setCaption(currentPost.getPostCaption());
-        postResponse.setNumberOfLikes(currentPost.getUserLike().size());
-        postResponse.setLikes(insertUserLikeResponse(currentPost.getUserLike()));
-        postResponse.setComments(insertCommentResponse(currentPost.getComments()));
+        postResponse.setNumberOfLikes(currentPost.getUserLike() == null ? 0 : currentPost.getUserLike().size());
+        postResponse.setLikes(insertUserLikeResponse(currentPost.getUserLike() == null ? new ArrayList<>() : currentPost.getUserLike()));
+        postResponse.setComments(currentPost.getComments() == null ? new ArrayList<>() : insertCommentResponse(currentPost.getComments()));
+        postResponse.setLocationResponse(currentPost.getPostOrStoryLocation() == null ? null : insertLocationResponse(currentPost.getPostOrStoryLocation()));
 
         return statusResponse.statusOk(postResponse);
     }

@@ -6,6 +6,8 @@ import org.java.personal.project.dto.request.story.StoryRequestDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public interface StoryService {
 
@@ -16,4 +18,6 @@ public interface StoryService {
     StatusResponse createStoryCollection(StoryCollectionRequestDTO storyCollectionRequestDTO, String userId);
 
     StatusResponse updateStoryCollection(StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, String userId);
+
+    StatusResponse getOneStoryByStoryIdAndUserId(String postId, String userId) throws IOException;
 }

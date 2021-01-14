@@ -47,8 +47,8 @@ public class PostController {
         return new ResponseEntity(likeResponse, likeResponse.getResponse());
     }
 
-    @GetMapping("/getPost/{postId}/{userId}")
-    private ResponseEntity getOnePostFromUser(@PathVariable String postId, @PathVariable String userId) throws IOException {
+    @GetMapping("/getPost/{postId}")
+    private ResponseEntity getOnePostFromUser(@PathVariable String postId, @RequestHeader(value = "userId") String userId) throws IOException {
         StatusResponse getPostResponse = postService.getOnePostByUserId(postId,userId);
         return new ResponseEntity(getPostResponse, getPostResponse.getResponse());
     }

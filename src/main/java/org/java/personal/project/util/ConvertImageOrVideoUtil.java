@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import static org.java.personal.project.constant.AppEnum.CAN_NOT_ENCODE_THE_VIDEO;
-import static org.java.personal.project.constant.AppEnum.INVALID_POST_FORMAT;
+import static org.java.personal.project.constant.AppEnum.*;
 
 @Service
 public class ConvertImageOrVideoUtil {
@@ -26,18 +25,24 @@ public class ConvertImageOrVideoUtil {
         this.env = env;
     }
 
-    public List<String> convertImageToBase64String(List<String> postPictures, List<String> postBases64) throws IOException {
+    public List<String> convertFileToBase64String(List<String> postPictures, List<String> postBases64) throws IOException {
 
         for(String postPicture : postPictures){
-            File currentPostFile = new File(env.getProperty("postPicturePath") + postPicture);
-            if(currentPostFile == null)
-                return new ArrayList<>();
-
-            byte[] postFileByte = Files.readAllBytes(currentPostFile.toPath().toAbsolutePath());
-            String postFileInString = Base64.getEncoder().encodeToString(postFileByte);
+            String postFileInString = convertFileOneByOne(postPicture);
             postBases64.add(postFileInString);
         }
         return postBases64;
+    }
+
+    public String convertFileOneByOne(String postPicture) throws IOException {
+        File currentPostFile = new File(env.getProperty("postPicturePath") + postPicture);
+        if(currentPostFile == null)
+            return PICTURE_CANNOT_LOAD_PROPERLY.getMessage();
+
+        byte[] postFileByte = Files.readAllBytes(currentPostFile.toPath().toAbsolutePath());
+        String postFileInString = Base64.getEncoder().encodeToString(postFileByte);
+
+        return postFileInString;
     }
 
     public List<String> convertImage(byte[] data, MultipartFile file, List<String> postCollections) throws Exception {

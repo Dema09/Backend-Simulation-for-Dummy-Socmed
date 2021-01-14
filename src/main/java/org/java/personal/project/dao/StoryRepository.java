@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface StoryRepository extends MongoRepository<Story, String> {
-    List<Story> findStoryByCurrentUserStory(DummyUser dummyUser);
+    List<Story> findStoriesByCurrentUserStory(DummyUser dummyUser);
+
+    Story findStoryByStoryIdAndCurrentUserStory(String storyId, DummyUser dummyUser);
 }
