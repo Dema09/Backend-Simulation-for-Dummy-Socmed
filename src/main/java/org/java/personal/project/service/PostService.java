@@ -1,6 +1,7 @@
 package org.java.personal.project.service;
 
 import org.java.personal.project.dto.request.post.CommentPostDTO;
+import org.java.personal.project.dto.request.post.SavedPostToCollectionDTO;
 import org.java.personal.project.dto.request.post.UpdatePostDTO;
 import org.java.personal.project.dto.request.post.UserPostDTO;
 import org.java.personal.project.dto.response.StatusResponse;
@@ -24,4 +25,7 @@ public interface PostService {
 
     StatusResponse deleteUserPostByPostId(String postId, String userId);
 
+    StatusResponse savePostsToCollection(SavedPostToCollectionDTO savedPostToCollectionDTO, String userId);
+
+    StatusResponse getUserPostCollectionByUserId(String userId) throws IOException;
 }

@@ -94,7 +94,7 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage(), userId + IS_NOT_EXISTS.getMessage());
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), userId + IS_NOT_EXISTS.getMessage());
 
         List<Story> currentUsersStories = storyRepository.findStoriesByCurrentUserStory(currentUser);
         if(currentUsersStories.size() == 0 || currentUsersStories == null)
@@ -119,7 +119,7 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage() + userId + IS_NOT_EXISTS, null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS, null);
 
         StoryCollection storyCollection = new StoryCollection(
                 storyCollectionRequestDTO.getCollectionName(),
@@ -139,7 +139,7 @@ public class StoryServiceImpl implements StoryService {
         List<String> failedCollectionIds = new ArrayList<>();
 
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
 
         Iterator<String> deletedStoryIdIterator = storyCollectionWhenUpdateRequestDTO.getDeletedStoryIdList().iterator();
         while(deletedStoryIdIterator.hasNext()){
@@ -178,7 +178,7 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage(), null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), null);
 
         Story currentStory = storyRepository.findStoryByStoryIdAndCurrentUserStory(storyId, currentUser);
         if(currentStory == null)

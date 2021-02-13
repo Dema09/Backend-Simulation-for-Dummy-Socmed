@@ -1,9 +1,6 @@
 package org.java.personal.project.controller;
 
-import org.java.personal.project.dto.request.post.CommentPostDTO;
-import org.java.personal.project.dto.request.post.LikePostDTO;
-import org.java.personal.project.dto.request.post.UpdatePostDTO;
-import org.java.personal.project.dto.request.post.UserPostDTO;
+import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +60,18 @@ public class PostController {
     private ResponseEntity deletePost(@PathVariable String postId, @PathVariable String userId){
         StatusResponse deletePostResponse = postService.deleteUserPostByPostId(postId, userId);
         return new ResponseEntity(deletePostResponse, deletePostResponse.getResponse());
+    }
+
+    @PostMapping("/savePost")
+    private ResponseEntity savePost(@RequestHeader (value = "userId") String userId, @RequestBody SavedPostToCollectionDTO savedPostToCollectionDTO){
+        StatusResponse savePostsResponse = postService.savePostsToCollection(savedPostToCollectionDTO, userId);
+        return new ResponseEntity(savePostsResponse, savePostsResponse.getResponse());
+    }
+
+    @GetMapping("/getUserPostCollection")
+    private ResponseEntity getUserPostCollection(@RequestHeader (value = "userId") String userId) throws IOException {
+        StatusResponse getUserPostCollectionResponse = postService.getUserPostCollectionByUserId(userId);
+        return new ResponseEntity(getUserPostCollectionResponse, getUserPostCollectionResponse.getResponse());
     }
 
 }

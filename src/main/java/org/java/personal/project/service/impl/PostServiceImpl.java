@@ -1,11 +1,9 @@
 package org.java.personal.project.service.impl;
 
-import org.java.personal.project.dao.CommentRepository;
-import org.java.personal.project.dao.PostOrStoryLocationRepository;
-import org.java.personal.project.dao.PostRepository;
-import org.java.personal.project.dao.UserRepository;
+import org.java.personal.project.dao.*;
 import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.post.CommentPostDTO;
+import org.java.personal.project.dto.request.post.SavedPostToCollectionDTO;
 import org.java.personal.project.dto.request.post.UpdatePostDTO;
 import org.java.personal.project.dto.request.post.UserPostDTO;
 import org.java.personal.project.dto.response.*;
@@ -30,6 +28,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final PostOrStoryLocationRepository postOrStoryLocationRepository;
+    private final SavedPostCollectionRepository savedPostCollectionRepository;
     private final Environment env;
     private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
 
@@ -37,12 +36,14 @@ public class PostServiceImpl implements PostService {
     public PostServiceImpl(PostRepository postRepository,
                            UserRepository userRepository,
                            CommentRepository commentRepository,
+                           SavedPostCollectionRepository savedPostCollectionRepository,
                            PostOrStoryLocationRepository postOrStoryLocationRepository,
                            Environment env,
                            ConvertImageOrVideoUtil convertImageOrVideoUtil) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.savedPostCollectionRepository = savedPostCollectionRepository;
         this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.env = env;
         this.convertImageOrVideoUtil = convertImageOrVideoUtil;
@@ -58,7 +59,7 @@ public class PostServiceImpl implements PostService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID + userId + IS_NOT_EXISTS.getMessage(), null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
 
         Post currentPost = new Post();
         for(MultipartFile file : userPostDTO.getPostPicture()){
@@ -105,6 +106,9 @@ public class PostServiceImpl implements PostService {
 
     private List<DummyUser> insertMentionedUsers(List<String> mentionedPeoples, List<String> failedMentionedUsers, DummyUser currentUser){
         List<DummyUser> dummyUsers = new ArrayList<>();
+        if(mentionedPeoples == null || mentionedPeoples.size() == 0)
+            return new ArrayList<>();
+
         for(String mentionedPeople : mentionedPeoples){
             DummyUser currentMentionedUser = userRepository.findOne(mentionedPeople);
             if(currentMentionedUser == null || mentionedPeople.equals(currentUser.getId())) {
@@ -128,18 +132,22 @@ public class PostServiceImpl implements PostService {
 
         for(Post post : currentPostByUser){
             PostResponse postResponse = new PostResponse();
-            postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
-            postResponse.setCaption(post.getPostCaption());
-            postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
-            postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
-            postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments()));
-            postResponse.setLocationResponse(post.getPostOrStoryLocation() == null ? null : insertLocationResponse(post.getPostOrStoryLocation()));
-
-            postResponses.add(postResponse);
+            postResponses.add(insertToPostResponse(post, postResponse, postBases64));
         }
+
         headPostResponse.setPosts(postResponses);
         return statusResponse.statusOk(headPostResponse);
+    }
 
+    private PostResponse insertToPostResponse(Post post, PostResponse postResponse, List<String> postBases64) throws IOException {
+        postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
+        postResponse.setCaption(post.getPostCaption());
+        postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
+        postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
+        postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments()));
+        postResponse.setLocationResponse(post.getPostOrStoryLocation() == null ? new LocationHeadResponse() : insertLocationResponse(post.getPostOrStoryLocation()));
+
+        return postResponse;
     }
 
     private LocationHeadResponse insertLocationResponse(PostOrStoryLocation postOrStoryLocation) {
@@ -287,5 +295,93 @@ public class PostServiceImpl implements PostService {
 
         postRepository.delete(currentPost);
         return statusResponse.statusOk(DELETE_POST_SUCCESSFULLY.getMessage() + postId);
+    }
+
+    @Override
+    public StatusResponse savePostsToCollection(SavedPostToCollectionDTO savedPostToCollectionDTO, String userId) {
+        StatusResponse statusResponse = new StatusResponse();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage() + userId, null);
+
+        Post currentPost = postRepository.findOne(savedPostToCollectionDTO.getPostId());
+        if(currentPost == null)
+            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
+
+        if(savedPostToCollectionDTO.getPostCollectionName().equals("") || savedPostToCollectionDTO.getPostCollectionName() == null)
+            savedPostToCollectionDTO.setPostCollectionName(YOUR_POST_COLLECTION.getMessage());
+
+        if(savedPostToCollectionDTO.getPostCollectionId() == null || savedPostToCollectionDTO.getPostCollectionId().equals(""))
+            insertIntoNewSavedPostCollectionBasedOnCurrentUser(savedPostToCollectionDTO, currentUser, currentPost);
+        else
+            insertIntoAnExistingPostCollectionBasedOnCurrentUser(savedPostToCollectionDTO, currentPost);
+
+        return statusResponse.statusOk(SUCCESSFULLY_INSERT_OR_UPDATE_POST_COLLECTION.getMessage());
+
+    }
+
+    @Override
+    public StatusResponse getUserPostCollectionByUserId(String userId) throws IOException {
+        StatusResponse statusResponse = new StatusResponse();
+        HeadPostCollectionResponse headPostCollectionResponse = new HeadPostCollectionResponse();
+        List<PostCollectionResponse> postCollectionResponses = new ArrayList<>();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+
+        if(currentUser == null)
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
+
+        List<SavedPost> savedPosts = savedPostCollectionRepository.findAllByDummyUser(currentUser);
+
+        if(savedPosts == null || savedPosts.size() == 0)
+            return statusResponse.statusOk(new ArrayList<>());
+
+        for(SavedPost savedPost : savedPosts){
+            PostCollectionResponse postCollectionResponse = new PostCollectionResponse();
+            postCollectionResponse.setPostCollectionId(savedPost.getSavedPostId());
+            postCollectionResponse.setPostCollectionName(savedPost.getPostCollectionName());
+            postCollectionResponse.setPosts(insertPostsOneByOne(savedPost.getPosts()));
+
+            postCollectionResponses.add(postCollectionResponse);
+        }
+        headPostCollectionResponse.setUsername(currentUser.getUsername());
+        headPostCollectionResponse.setPostCollections(postCollectionResponses);
+
+        return statusResponse.statusOk(headPostCollectionResponse);
+
+    }
+
+    private List<PostResponse> insertPostsOneByOne(List<Post> posts) throws IOException {
+        List<PostResponse> postResponses = new ArrayList<>();
+        List<String> postBases64 = new ArrayList<>();
+
+        for(Post post : posts){
+            PostResponse postResponse = new PostResponse();
+            postResponses.add(insertToPostResponse(post, postResponse, postBases64));
+        }
+        return postResponses;
+    }
+
+    private void insertIntoAnExistingPostCollectionBasedOnCurrentUser(SavedPostToCollectionDTO savedPostToCollectionDTO, Post currentPost) {
+        SavedPost currentSavedPost = savedPostCollectionRepository.findOne(savedPostToCollectionDTO.getPostId());
+        List<Post> posts = currentSavedPost.getPosts();
+
+        posts.add(currentPost);
+        currentSavedPost.setPosts(posts);
+
+        savedPostCollectionRepository.save(currentSavedPost);
+    }
+
+    private void insertIntoNewSavedPostCollectionBasedOnCurrentUser(SavedPostToCollectionDTO savedPostToCollectionDTO, DummyUser currentUser, Post currentPost) {
+        SavedPost savedPost = new SavedPost();
+        List<Post> posts = new ArrayList<>();
+        posts.add(currentPost);
+
+        savedPost.setPostCollectionName(savedPostToCollectionDTO.getPostCollectionName());
+        savedPost.setPosts(posts);
+        savedPost.setDummyUser(currentUser);
+
+        savedPostCollectionRepository.save(savedPost);
     }
 }

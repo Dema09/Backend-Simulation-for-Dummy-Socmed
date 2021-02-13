@@ -1,7 +1,7 @@
 package org.java.personal.project.constant;
 
 public enum AppEnum {
-    YOUR_USERNAME_WITH_ID("Your username with id: "),
+    THIS_USER_WITH_ID("Your username with id: "),
     IS_NOT_EXISTS(" is not exists!"),
     POST_HAS_BEEN_CREATED("Your post has been created!"),
     PICTURE_CANNOT_LOAD_PROPERLY("Your picture post can't load properly!"),
@@ -19,6 +19,8 @@ public enum AppEnum {
     SUCCESSFULLY_UPDATE_COLLECTION_WITH_COLLECTION_ID("Successfully update your collection with collection id: "),
     USER_STORY_IS_NOT_FOUND("Cannot find the story collection with id: "),
     THIS_MENTIONED_USER_WITH_ID("This mentioned user with id: "),
+    YOUR_POST_COLLECTION("Your Post Collection"),
+    SUCCESSFULLY_INSERT_OR_UPDATE_POST_COLLECTION("Successfully insert or update your post collection!"),
     POINT("Point");
 
 
