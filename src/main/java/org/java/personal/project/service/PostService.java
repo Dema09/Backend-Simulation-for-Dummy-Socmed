@@ -28,4 +28,6 @@ public interface PostService {
     StatusResponse savePostsToCollection(SavedPostToCollectionDTO savedPostToCollectionDTO, String userId);
 
     StatusResponse getUserPostCollectionByUserId(String userId) throws IOException;
+
+    StatusResponse getOnePostCollectionByPostCollectionId(String postCollectionId, String userId) throws IOException;
 }

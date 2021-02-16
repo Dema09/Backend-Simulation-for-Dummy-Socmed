@@ -6,11 +6,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "saved_post")
-public class SavedPost {
+@Document(collection = "post_collection")
+public class PostCollection {
 
     @Id
-    private String savedPostId;
+    private String postCollectionId;
 
     private String postCollectionName;
 
@@ -20,12 +20,12 @@ public class SavedPost {
     @DBRef
     private DummyUser dummyUser;
 
-    public String getSavedPostId() {
-        return savedPostId;
+    public String getPostCollectionId() {
+        return postCollectionId;
     }
 
-    public void setSavedPostId(String savedPostId) {
-        this.savedPostId = savedPostId;
+    public void setPostCollectionId(String postCollectionId) {
+        this.postCollectionId = postCollectionId;
     }
 
     public String getPostCollectionName() {

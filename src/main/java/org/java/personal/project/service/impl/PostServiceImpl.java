@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final PostOrStoryLocationRepository postOrStoryLocationRepository;
-    private final SavedPostCollectionRepository savedPostCollectionRepository;
+    private final PostCollectionRepository postCollectionRepository;
     private final Environment env;
     private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
 
@@ -36,14 +36,14 @@ public class PostServiceImpl implements PostService {
     public PostServiceImpl(PostRepository postRepository,
                            UserRepository userRepository,
                            CommentRepository commentRepository,
-                           SavedPostCollectionRepository savedPostCollectionRepository,
+                           PostCollectionRepository postCollectionRepository,
                            PostOrStoryLocationRepository postOrStoryLocationRepository,
                            Environment env,
                            ConvertImageOrVideoUtil convertImageOrVideoUtil) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
-        this.savedPostCollectionRepository = savedPostCollectionRepository;
+        this.postCollectionRepository = postCollectionRepository;
         this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.env = env;
         this.convertImageOrVideoUtil = convertImageOrVideoUtil;
@@ -332,16 +332,16 @@ public class PostServiceImpl implements PostService {
         if(currentUser == null)
             return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
 
-        List<SavedPost> savedPosts = savedPostCollectionRepository.findAllByDummyUser(currentUser);
+        List<PostCollection> postCollections = postCollectionRepository.findAllByDummyUser(currentUser);
 
-        if(savedPosts == null || savedPosts.size() == 0)
+        if(postCollections == null || postCollections.size() == 0)
             return statusResponse.statusOk(new ArrayList<>());
 
-        for(SavedPost savedPost : savedPosts){
+        for(PostCollection postCollection : postCollections){
             PostCollectionResponse postCollectionResponse = new PostCollectionResponse();
-            postCollectionResponse.setPostCollectionId(savedPost.getSavedPostId());
-            postCollectionResponse.setPostCollectionName(savedPost.getPostCollectionName());
-            postCollectionResponse.setPosts(insertPostsOneByOne(savedPost.getPosts()));
+            postCollectionResponse.setPostCollectionId(postCollection.getPostCollectionId());
+            postCollectionResponse.setPostCollectionName(postCollection.getPostCollectionName());
+            postCollectionResponse.setPosts(insertPostsOneByOne(postCollection.getPosts()));
 
             postCollectionResponses.add(postCollectionResponse);
         }
@@ -350,6 +350,26 @@ public class PostServiceImpl implements PostService {
 
         return statusResponse.statusOk(headPostCollectionResponse);
 
+    }
+
+    @Override
+    public StatusResponse getOnePostCollectionByPostCollectionId(String postCollectionId, String userId) throws IOException {
+        StatusResponse statusResponse = new StatusResponse();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusBadRequest(USER_NOT_FOUND.getMessage() + userId, null);
+
+        PostCollection currentPostCollection = postCollectionRepository.findPostCollectionByPostCollectionIdAndDummyUser(postCollectionId, currentUser);
+        if(currentPostCollection == null)
+            return statusResponse.statusOk(new PostCollection());
+
+        PostCollectionResponse postCollectionResponse = new PostCollectionResponse();
+        postCollectionResponse.setPostCollectionId(currentPostCollection.getPostCollectionId());
+        postCollectionResponse.setPostCollectionName(currentPostCollection.getPostCollectionName());
+        postCollectionResponse.setPosts(insertPostsOneByOne(currentPostCollection.getPosts()));
+
+        return statusResponse.statusOk(postCollectionResponse);
     }
 
     private List<PostResponse> insertPostsOneByOne(List<Post> posts) throws IOException {
@@ -364,24 +384,24 @@ public class PostServiceImpl implements PostService {
     }
 
     private void insertIntoAnExistingPostCollectionBasedOnCurrentUser(SavedPostToCollectionDTO savedPostToCollectionDTO, Post currentPost) {
-        SavedPost currentSavedPost = savedPostCollectionRepository.findOne(savedPostToCollectionDTO.getPostId());
-        List<Post> posts = currentSavedPost.getPosts();
+        PostCollection currentPostCollection = postCollectionRepository.findOne(savedPostToCollectionDTO.getPostId());
+        List<Post> posts = currentPostCollection.getPosts();
 
         posts.add(currentPost);
-        currentSavedPost.setPosts(posts);
+        currentPostCollection.setPosts(posts);
 
-        savedPostCollectionRepository.save(currentSavedPost);
+        postCollectionRepository.save(currentPostCollection);
     }
 
     private void insertIntoNewSavedPostCollectionBasedOnCurrentUser(SavedPostToCollectionDTO savedPostToCollectionDTO, DummyUser currentUser, Post currentPost) {
-        SavedPost savedPost = new SavedPost();
+        PostCollection postCollection = new PostCollection();
         List<Post> posts = new ArrayList<>();
         posts.add(currentPost);
 
-        savedPost.setPostCollectionName(savedPostToCollectionDTO.getPostCollectionName());
-        savedPost.setPosts(posts);
-        savedPost.setDummyUser(currentUser);
+        postCollection.setPostCollectionName(savedPostToCollectionDTO.getPostCollectionName());
+        postCollection.setPosts(posts);
+        postCollection.setDummyUser(currentUser);
 
-        savedPostCollectionRepository.save(savedPost);
+        postCollectionRepository.save(postCollection);
     }
 }

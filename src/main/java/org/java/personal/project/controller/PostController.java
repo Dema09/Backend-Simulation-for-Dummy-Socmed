@@ -4,6 +4,7 @@ import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,6 +73,13 @@ public class PostController {
     private ResponseEntity getUserPostCollection(@RequestHeader (value = "userId") String userId) throws IOException {
         StatusResponse getUserPostCollectionResponse = postService.getUserPostCollectionByUserId(userId);
         return new ResponseEntity(getUserPostCollectionResponse, getUserPostCollectionResponse.getResponse());
+    }
+
+    @GetMapping("/getOneUserPostCollection/{postCollectionId}")
+    private ResponseEntity getOneUserPostCollection(@PathVariable String postCollectionId, @RequestHeader (value = "userId") String userId) throws IOException {
+        StatusResponse getOneUserPostCollectionResponse = postService.getOnePostCollectionByPostCollectionId(postCollectionId, userId);
+        return new ResponseEntity(getOneUserPostCollectionResponse, getOneUserPostCollectionResponse.getResponse());
+
     }
 
 }
