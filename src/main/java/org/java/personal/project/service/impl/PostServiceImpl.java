@@ -2,10 +2,7 @@ package org.java.personal.project.service.impl;
 
 import org.java.personal.project.dao.*;
 import org.java.personal.project.domain.*;
-import org.java.personal.project.dto.request.post.CommentPostDTO;
-import org.java.personal.project.dto.request.post.SavedPostToCollectionDTO;
-import org.java.personal.project.dto.request.post.UpdatePostDTO;
-import org.java.personal.project.dto.request.post.UserPostDTO;
+import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.*;
 import org.java.personal.project.dto.response.post.*;
 import org.java.personal.project.service.PostService;
@@ -17,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.java.personal.project.constant.AppEnum.*;
@@ -306,20 +304,23 @@ public class PostServiceImpl implements PostService {
             return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage() + userId, null);
 
         Post currentPost = postRepository.findOne(savedPostToCollectionDTO.getPostId());
+
         if(currentPost == null)
             return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
 
-        if(savedPostToCollectionDTO.getPostCollectionName().equals("") || savedPostToCollectionDTO.getPostCollectionName() == null)
+        PostCollection checkPostCollection = postCollectionRepository.findPostCollectionByPostCollectionName(savedPostToCollectionDTO.getPostCollectionName());
+
+        if((savedPostToCollectionDTO.getPostCollectionName().equals("") || savedPostToCollectionDTO.getPostCollectionName() == null) && checkPostCollection != null)
             savedPostToCollectionDTO.setPostCollectionName(YOUR_POST_COLLECTION.getMessage());
 
-        if(savedPostToCollectionDTO.getPostCollectionId() == null || savedPostToCollectionDTO.getPostCollectionId().equals(""))
+        if((savedPostToCollectionDTO.getPostCollectionId() == null || savedPostToCollectionDTO.getPostCollectionId().equals("") && checkPostCollection != null))
             insertIntoNewSavedPostCollectionBasedOnCurrentUser(savedPostToCollectionDTO, currentUser, currentPost);
         else
             insertIntoAnExistingPostCollectionBasedOnCurrentUser(savedPostToCollectionDTO, currentPost);
 
         return statusResponse.statusOk(SUCCESSFULLY_INSERT_OR_UPDATE_POST_COLLECTION.getMessage());
-
     }
+
 
     @Override
     public StatusResponse getUserPostCollectionByUserId(String userId) throws IOException {
@@ -370,6 +371,77 @@ public class PostServiceImpl implements PostService {
         postCollectionResponse.setPosts(insertPostsOneByOne(currentPostCollection.getPosts()));
 
         return statusResponse.statusOk(postCollectionResponse);
+    }
+
+    @Override
+    public StatusResponse updatePostCollectionByPostCollectionId(String userId, String postCollectionId, UpdatePostCollectionDTO updatePostCollectionDTO) {
+        StatusResponse statusResponse = new StatusResponse();
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage(), null);
+
+        PostCollection currentPostCollection = postCollectionRepository.findPostCollectionByPostCollectionIdAndDummyUser(postCollectionId, currentUser);
+        if(currentPostCollection == null)
+            return statusResponse.statusOk(new PostCollection());
+
+        currentPostCollection.setPostCollectionName(updatePostCollectionDTO.getPostCollectionName());
+        postCollectionRepository.save(currentPostCollection);
+
+        return statusResponse.statusOk(SUCCESSFULLY_UPDATE_POST_COLLECTION_NAME.getMessage());
+    }
+
+    @Override
+    public StatusResponse updatePostCollectionContentByPostCollectionId(String userId, String postCollectionId, UpdatePostCollectionContentDTO updatePostCollectionContentDTO) {
+        StatusResponse statusResponse = new StatusResponse();
+        List<String> failedPostIds = new ArrayList<>();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage(), null);
+
+        PostCollection postCollection = postCollectionRepository.findPostCollectionByPostCollectionIdAndDummyUser(postCollectionId, currentUser);
+        List<Post> posts = postCollection.getPosts();
+        if(postCollection == null)
+            return statusResponse.statusOk(new PostCollection());
+
+        if(updatePostCollectionContentDTO.getAddedPostCollectionIds() != null)
+            insertAddedPostContentToPostCollection(postCollection, updatePostCollectionContentDTO.getAddedPostCollectionIds(), failedPostIds, posts);
+
+        if(updatePostCollectionContentDTO.getRemovedPostCollectionIds() != null)
+        removePostContentFromPostCollection(postCollection, updatePostCollectionContentDTO.getRemovedPostCollectionIds(), failedPostIds, posts);
+
+        return statusResponse.statusOk(SUCCESSFULLY_UPDATE_YOUR_POST_COLLECTION_WITH_ID.getMessage() + postCollection.getPostCollectionId());
+    }
+
+    private void removePostContentFromPostCollection(PostCollection postCollection, List<String> removedPostCollectionIds, List<String> failedPostIds, List<Post> posts) {
+        for(String currentPostId : removedPostCollectionIds){
+            Post currentPost = postRepository.findOne(currentPostId);
+            if(currentPost == null)
+                failedPostIds.add(currentPostId);
+            else {
+                Iterator<Post> postIterator = postCollection.getPosts().iterator();
+                while(postIterator.hasNext()){
+                    Post postWhichWantToRemove = postIterator.next();
+                    if(postWhichWantToRemove.getPostId().equals(currentPost.getPostId()))
+                        postIterator.remove();
+                }
+                postCollection.setPosts(posts);
+            }
+        }
+        postCollectionRepository.save(postCollection);
+    }
+
+    private void insertAddedPostContentToPostCollection(PostCollection postCollection, List<String> addedPostIds, List<String> failedPostIds, List<Post> posts) {
+        for(String currentPostId : addedPostIds){
+            Post currentPost = postRepository.findOne(currentPostId);
+            if(currentPost == null)
+                failedPostIds.add(currentPostId);
+            else{
+             posts.add(currentPost);
+             postCollection.setPosts(posts);
+            }
+        }
+        postCollectionRepository.save(postCollection);
     }
 
     private List<PostResponse> insertPostsOneByOne(List<Post> posts) throws IOException {

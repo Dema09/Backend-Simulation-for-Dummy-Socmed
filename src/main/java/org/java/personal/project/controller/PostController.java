@@ -82,4 +82,16 @@ public class PostController {
 
     }
 
+    @PutMapping("/updatePostCollection/{postCollectionId}")
+    private ResponseEntity updatePostCollection(@RequestHeader (value = "userId") String userId, @PathVariable String postCollectionId, @RequestBody UpdatePostCollectionDTO updatePostCollectionDTO){
+        StatusResponse updatePostCollectionResponse = postService.updatePostCollectionByPostCollectionId(userId, postCollectionId, updatePostCollectionDTO);
+        return new ResponseEntity(updatePostCollectionResponse, updatePostCollectionResponse.getResponse());
+    }
+
+    @PutMapping("/updatePostCollectionContent/{postCollectionId}")
+    private ResponseEntity updatePostCollectionContent(@PathVariable String postCollectionId, @RequestHeader (value = "userId") String userId, @RequestBody UpdatePostCollectionContentDTO updatePostCollectionContentDTO){
+        StatusResponse updatePostCollectionContentResponse = postService.updatePostCollectionContentByPostCollectionId(userId, postCollectionId, updatePostCollectionContentDTO);
+        return new ResponseEntity(updatePostCollectionContentResponse, updatePostCollectionContentResponse.getResponse());
+    }
+
 }

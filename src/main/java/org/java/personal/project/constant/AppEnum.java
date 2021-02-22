@@ -21,7 +21,9 @@ public enum AppEnum {
     THIS_MENTIONED_USER_WITH_ID("This mentioned user with id: "),
     YOUR_POST_COLLECTION("Your Post Collection"),
     SUCCESSFULLY_INSERT_OR_UPDATE_POST_COLLECTION("Successfully insert or update your post collection!"),
-    POINT("Point");
+    SUCCESSFULLY_UPDATE_POST_COLLECTION_NAME("Successfully update your post collection's name!"),
+    POINT("Point"),
+    SUCCESSFULLY_UPDATE_YOUR_POST_COLLECTION_WITH_ID("Successfully update your post collection with id: ");
 
 
     private String message;

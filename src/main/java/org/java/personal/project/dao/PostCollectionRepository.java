@@ -12,4 +12,6 @@ public interface PostCollectionRepository extends MongoRepository<PostCollection
     List<PostCollection> findAllByDummyUser(DummyUser dummyUser);
 
     PostCollection findPostCollectionByPostCollectionIdAndDummyUser(String postCollectionId, DummyUser dummyUser);
+
+    PostCollection findPostCollectionByPostCollectionName(String postCollectionName);
 }
