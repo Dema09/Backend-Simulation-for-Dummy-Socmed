@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Document(collection = "user_post")
-public class Post implements Persistable<String> {
+public class Post{
     @Id
     private String postId;
 
@@ -113,16 +113,6 @@ public class Post implements Persistable<String> {
 
     public void setLastModified(Date updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    @Override
-    public String getId() {
-        return postId;
-    }
-
-    @Override
-    public boolean isNew() {
-        return persisted;
     }
 
     public void setPersisted(boolean persisted) {

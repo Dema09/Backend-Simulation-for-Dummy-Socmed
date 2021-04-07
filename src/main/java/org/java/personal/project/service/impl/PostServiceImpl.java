@@ -129,15 +129,16 @@ public class PostServiceImpl implements PostService {
         List<Post> currentPostByUser = postRepository.getAllByDummyUser(dummyUser);
 
         for(Post post : currentPostByUser){
-            PostResponse postResponse = new PostResponse();
-            postResponses.add(insertToPostResponse(post, postResponse, postBases64));
+            postResponses.add(insertToPostResponse(post, postBases64));
         }
 
         headPostResponse.setPosts(postResponses);
         return statusResponse.statusOk(headPostResponse);
     }
 
-    private PostResponse insertToPostResponse(Post post, PostResponse postResponse, List<String> postBases64) throws IOException {
+    private PostResponse insertToPostResponse(Post post, List<String> postBases64) throws IOException {
+        PostResponse postResponse = new PostResponse();
+
         postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
         postResponse.setCaption(post.getPostCaption());
         postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
@@ -263,6 +264,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public StatusResponse updateCaptionPost(UpdatePostDTO updatePostDTO, String userId) {
         StatusResponse statusResponse = new StatusResponse();
+        List<DummyUser> mentionedUsers = new ArrayList<>();
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
@@ -274,6 +276,15 @@ public class PostServiceImpl implements PostService {
 
         currentPost.setUpdated(true);
         currentPost.setPostCaption(updatePostDTO.getCaption());
+
+        for(String mentionedUserId : updatePostDTO.getMentionedUserId()){
+            DummyUser currentMentionedUser = userRepository.findOne(mentionedUserId);
+            if(currentMentionedUser == null || currentMentionedUser.getId().equals(currentUser.getId()))
+                continue;
+            else
+                mentionedUsers.add(currentMentionedUser);
+        }
+        currentPost.setMentionedUsers(mentionedUsers);
 
         postRepository.save(currentPost);
         return statusResponse.statusOk(UPDATE_CAPTION_SUCCESSFULLY.getMessage() + currentPost.getPostId());
@@ -413,6 +424,42 @@ public class PostServiceImpl implements PostService {
         return statusResponse.statusOk(SUCCESSFULLY_UPDATE_YOUR_POST_COLLECTION_WITH_ID.getMessage() + postCollection.getPostCollectionId());
     }
 
+    @Override
+    public StatusResponse getTaggedPostByUserId(String userId) throws IOException {
+        StatusResponse statusResponse = new StatusResponse();
+        TaggedPostResponse taggedPostResponse = new TaggedPostResponse();
+        List<PostResponse> postResponses = new ArrayList<>();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusBadRequest(USER_NOT_FOUND.getMessage(), null);
+
+        List<Post> posts = postRepository.findAll();
+        for(Post post : posts){
+            boolean checkIfUserMentioned = checkIfUserIsMentioned(currentUser, post);
+            if(checkIfUserMentioned)
+                insertToTaggedPostResponse(post, postResponses);
+        }
+        taggedPostResponse.setTaggedPosts(postResponses);
+        return statusResponse.statusOk(taggedPostResponse);
+    }
+
+    private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses) throws IOException {
+        PostResponse currentPostResponse = insertToPostResponse(post, post.getPostPicture());
+        postResponses.add(currentPostResponse);
+    }
+
+    private boolean checkIfUserIsMentioned(DummyUser currentUser, Post post) {
+        boolean isUserMentioned = false;
+        for(DummyUser dummyUser : post.getMentionedUsers()){
+            if(dummyUser.getId().equals(currentUser.getId())) {
+                isUserMentioned = true;
+                break;
+            }
+        }
+        return isUserMentioned;
+    }
+
     private void removePostContentFromPostCollection(PostCollection postCollection, List<String> removedPostCollectionIds, List<String> failedPostIds, List<Post> posts) {
         for(String currentPostId : removedPostCollectionIds){
             Post currentPost = postRepository.findOne(currentPostId);
@@ -449,8 +496,7 @@ public class PostServiceImpl implements PostService {
         List<String> postBases64 = new ArrayList<>();
 
         for(Post post : posts){
-            PostResponse postResponse = new PostResponse();
-            postResponses.add(insertToPostResponse(post, postResponse, postBases64));
+            postResponses.add(insertToPostResponse(post, postBases64));
         }
         return postResponses;
     }

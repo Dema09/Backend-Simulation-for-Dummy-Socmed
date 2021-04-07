@@ -31,4 +31,6 @@ public interface PostService {
     StatusResponse updatePostCollectionByPostCollectionId(String userId, String postCollectionId, UpdatePostCollectionDTO updatePostCollectionDTO);
 
     StatusResponse updatePostCollectionContentByPostCollectionId(String userId, String postCollectionId, UpdatePostCollectionContentDTO updatePostCollectionContentDTO);
+
+    StatusResponse getTaggedPostByUserId(String userId) throws IOException;
 }

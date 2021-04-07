@@ -51,8 +51,8 @@ public class PostController {
         return new ResponseEntity(getPostResponse, getPostResponse.getResponse());
     }
 
-    @PutMapping("/updatePost/{userId}")
-    private ResponseEntity updateCaption(@RequestBody UpdatePostDTO updatePostDTO, @PathVariable String userId){
+    @PutMapping("/updatePost")
+    private ResponseEntity updateCaption(@RequestBody UpdatePostDTO updatePostDTO, @RequestHeader(value = "userId") String userId){
         StatusResponse updatePostResponse = postService.updateCaptionPost(updatePostDTO, userId);
         return new ResponseEntity(updatePostResponse, updatePostResponse.getResponse());
     }
@@ -92,6 +92,12 @@ public class PostController {
     private ResponseEntity updatePostCollectionContent(@PathVariable String postCollectionId, @RequestHeader (value = "userId") String userId, @RequestBody UpdatePostCollectionContentDTO updatePostCollectionContentDTO){
         StatusResponse updatePostCollectionContentResponse = postService.updatePostCollectionContentByPostCollectionId(userId, postCollectionId, updatePostCollectionContentDTO);
         return new ResponseEntity(updatePostCollectionContentResponse, updatePostCollectionContentResponse.getResponse());
+    }
+
+    @GetMapping("/getTaggedPost")
+    private ResponseEntity getTaggedPostByUserId(@RequestHeader (value = "userId") String userId) throws IOException {
+        StatusResponse getTaggedPostResponse = postService.getTaggedPostByUserId(userId);
+        return new ResponseEntity(getTaggedPostResponse, getTaggedPostResponse.getResponse());
     }
 
 }
