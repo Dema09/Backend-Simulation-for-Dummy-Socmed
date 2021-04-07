@@ -429,6 +429,7 @@ public class PostServiceImpl implements PostService {
         StatusResponse statusResponse = new StatusResponse();
         TaggedPostResponse taggedPostResponse = new TaggedPostResponse();
         List<PostResponse> postResponses = new ArrayList<>();
+        List<String> postBases64 = new ArrayList<>();
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
@@ -438,14 +439,14 @@ public class PostServiceImpl implements PostService {
         for(Post post : posts){
             boolean checkIfUserMentioned = checkIfUserIsMentioned(currentUser, post);
             if(checkIfUserMentioned)
-                insertToTaggedPostResponse(post, postResponses);
+                insertToTaggedPostResponse(post, postResponses, postBases64);
         }
         taggedPostResponse.setTaggedPosts(postResponses);
         return statusResponse.statusOk(taggedPostResponse);
     }
 
-    private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses) throws IOException {
-        PostResponse currentPostResponse = insertToPostResponse(post, post.getPostPicture());
+    private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses, List<String> postBases64) throws IOException {
+        PostResponse currentPostResponse = insertToPostResponse(post, postBases64);
         postResponses.add(currentPostResponse);
     }
 
