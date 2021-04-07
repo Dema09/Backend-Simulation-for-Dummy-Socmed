@@ -1,8 +1,6 @@
 package org.java.personal.project.service;
 
-import org.java.personal.project.dto.request.post.CommentPostDTO;
-import org.java.personal.project.dto.request.post.UpdatePostDTO;
-import org.java.personal.project.dto.request.post.UserPostDTO;
+import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.springframework.stereotype.Service;
 
@@ -24,4 +22,15 @@ public interface PostService {
 
     StatusResponse deleteUserPostByPostId(String postId, String userId);
 
+    StatusResponse savePostsToCollection(SavedPostToCollectionDTO savedPostToCollectionDTO, String userId);
+
+    StatusResponse getUserPostCollectionByUserId(String userId) throws IOException;
+
+    StatusResponse getOnePostCollectionByPostCollectionId(String postCollectionId, String userId) throws IOException;
+
+    StatusResponse updatePostCollectionByPostCollectionId(String userId, String postCollectionId, UpdatePostCollectionDTO updatePostCollectionDTO);
+
+    StatusResponse updatePostCollectionContentByPostCollectionId(String userId, String postCollectionId, UpdatePostCollectionContentDTO updatePostCollectionContentDTO);
+
+    StatusResponse getTaggedPostByUserId(String userId) throws IOException;
 }

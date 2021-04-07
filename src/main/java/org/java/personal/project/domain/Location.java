@@ -2,13 +2,14 @@ package org.java.personal.project.domain;
 
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 
-import java.util.List;
-
 public class Location {
     private String type;
 
     @GeoSpatialIndexed
     private double[] coordinates;
+
+    public Location() {
+    }
 
     public Location(String type, double longitude, double latitude) {
         this.type = type;

@@ -31,14 +31,11 @@ public class Story {
     @DBRef
     private PostOrStoryLocation storyLocation;
 
+    private boolean isCloseFriendMode;
+
     public Story() {
     }
 
-    public Story(String storyFileName, DummyUser currentUserStory, List<DummyUser> mentionPeople) {
-        this.storyFileName = storyFileName;
-        this.currentUserStory = currentUserStory;
-        this.mentionPeople = mentionPeople;
-    }
 
     public String getStoryId() {
         return storyId;
@@ -94,5 +91,13 @@ public class Story {
 
     public void setStoryLocation(PostOrStoryLocation storyLocation) {
         this.storyLocation = storyLocation;
+    }
+
+    public boolean isCloseFriendMode() {
+        return isCloseFriendMode;
+    }
+
+    public void setCloseFriendMode(boolean closeFriendMode) {
+        isCloseFriendMode = closeFriendMode;
     }
 }

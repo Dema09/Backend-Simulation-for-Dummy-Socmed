@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/v1")
 public class StoryController {
@@ -42,6 +44,12 @@ public class StoryController {
     private ResponseEntity updateStoryCollection(@RequestHeader(value = "userId") String userId, @RequestBody StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO){
         StatusResponse updateStoryResponse = storyService.updateStoryCollection(storyCollectionWhenUpdateRequestDTO, userId);
         return new ResponseEntity(updateStoryResponse, updateStoryResponse.getResponse());
+    }
+
+    @GetMapping("/getUserStory/{storyId}")
+    private ResponseEntity getUserStoryByPostId(@PathVariable String storyId, @RequestHeader(value = "userId") String userId) throws IOException {
+        StatusResponse getUserStoryResponse = storyService.getOneStoryByStoryIdAndUserId(storyId, userId);
+        return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
     }
 
 }

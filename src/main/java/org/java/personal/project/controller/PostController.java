@@ -1,12 +1,10 @@
 package org.java.personal.project.controller;
 
-import org.java.personal.project.dto.request.post.CommentPostDTO;
-import org.java.personal.project.dto.request.post.LikePostDTO;
-import org.java.personal.project.dto.request.post.UpdatePostDTO;
-import org.java.personal.project.dto.request.post.UserPostDTO;
+import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,14 +45,14 @@ public class PostController {
         return new ResponseEntity(likeResponse, likeResponse.getResponse());
     }
 
-    @GetMapping("/getPost/{postId}/{userId}")
-    private ResponseEntity getOnePostFromUser(@PathVariable String postId, @PathVariable String userId) throws IOException {
+    @GetMapping("/getPost/{postId}")
+    private ResponseEntity getOnePostFromUser(@PathVariable String postId, @RequestHeader(value = "userId") String userId) throws IOException {
         StatusResponse getPostResponse = postService.getOnePostByUserId(postId,userId);
         return new ResponseEntity(getPostResponse, getPostResponse.getResponse());
     }
 
-    @PutMapping("/updatePost/{userId}")
-    private ResponseEntity updateCaption(@RequestBody UpdatePostDTO updatePostDTO, @PathVariable String userId){
+    @PutMapping("/updatePost")
+    private ResponseEntity updateCaption(@RequestBody UpdatePostDTO updatePostDTO, @RequestHeader(value = "userId") String userId){
         StatusResponse updatePostResponse = postService.updateCaptionPost(updatePostDTO, userId);
         return new ResponseEntity(updatePostResponse, updatePostResponse.getResponse());
     }
@@ -63,6 +61,43 @@ public class PostController {
     private ResponseEntity deletePost(@PathVariable String postId, @PathVariable String userId){
         StatusResponse deletePostResponse = postService.deleteUserPostByPostId(postId, userId);
         return new ResponseEntity(deletePostResponse, deletePostResponse.getResponse());
+    }
+
+    @PostMapping("/savePost")
+    private ResponseEntity savePost(@RequestHeader (value = "userId") String userId, @RequestBody SavedPostToCollectionDTO savedPostToCollectionDTO){
+        StatusResponse savePostsResponse = postService.savePostsToCollection(savedPostToCollectionDTO, userId);
+        return new ResponseEntity(savePostsResponse, savePostsResponse.getResponse());
+    }
+
+    @GetMapping("/getUserPostCollection")
+    private ResponseEntity getUserPostCollection(@RequestHeader (value = "userId") String userId) throws IOException {
+        StatusResponse getUserPostCollectionResponse = postService.getUserPostCollectionByUserId(userId);
+        return new ResponseEntity(getUserPostCollectionResponse, getUserPostCollectionResponse.getResponse());
+    }
+
+    @GetMapping("/getOneUserPostCollection/{postCollectionId}")
+    private ResponseEntity getOneUserPostCollection(@PathVariable String postCollectionId, @RequestHeader (value = "userId") String userId) throws IOException {
+        StatusResponse getOneUserPostCollectionResponse = postService.getOnePostCollectionByPostCollectionId(postCollectionId, userId);
+        return new ResponseEntity(getOneUserPostCollectionResponse, getOneUserPostCollectionResponse.getResponse());
+
+    }
+
+    @PutMapping("/updatePostCollection/{postCollectionId}")
+    private ResponseEntity updatePostCollection(@RequestHeader (value = "userId") String userId, @PathVariable String postCollectionId, @RequestBody UpdatePostCollectionDTO updatePostCollectionDTO){
+        StatusResponse updatePostCollectionResponse = postService.updatePostCollectionByPostCollectionId(userId, postCollectionId, updatePostCollectionDTO);
+        return new ResponseEntity(updatePostCollectionResponse, updatePostCollectionResponse.getResponse());
+    }
+
+    @PutMapping("/updatePostCollectionContent/{postCollectionId}")
+    private ResponseEntity updatePostCollectionContent(@PathVariable String postCollectionId, @RequestHeader (value = "userId") String userId, @RequestBody UpdatePostCollectionContentDTO updatePostCollectionContentDTO){
+        StatusResponse updatePostCollectionContentResponse = postService.updatePostCollectionContentByPostCollectionId(userId, postCollectionId, updatePostCollectionContentDTO);
+        return new ResponseEntity(updatePostCollectionContentResponse, updatePostCollectionContentResponse.getResponse());
+    }
+
+    @GetMapping("/getTaggedPost")
+    private ResponseEntity getTaggedPostByUserId(@RequestHeader (value = "userId") String userId) throws IOException {
+        StatusResponse getTaggedPostResponse = postService.getTaggedPostByUserId(userId);
+        return new ResponseEntity(getTaggedPostResponse, getTaggedPostResponse.getResponse());
     }
 
 }

@@ -1,7 +1,6 @@
 package org.java.personal.project.domain;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "post_or_story_location")
@@ -13,6 +12,16 @@ public class PostOrStoryLocation {
     private String category;
     private String locationName;
     private Location location;
+
+    public PostOrStoryLocation() {
+    }
+
+    public PostOrStoryLocation(String locationId, String category, String locationName, Location location) {
+        this.locationId = locationId;
+        this.category = category;
+        this.locationName = locationName;
+        this.location = location;
+    }
 
     public String getLocationId() {
         return locationId;

@@ -10,6 +10,7 @@ import org.java.personal.project.dto.request.story.StoryCollectionWhenUpdateRequ
 import org.java.personal.project.dto.request.story.StoryRequestDTO;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.dto.response.story.HeadStoryResponse;
+import org.java.personal.project.dto.response.story.OneHeadStoryResponse;
 import org.java.personal.project.dto.response.story.StoryResponse;
 import org.java.personal.project.dto.response.story.StoryResponseAfterUpdate;
 import org.java.personal.project.service.StoryService;
@@ -17,6 +18,7 @@ import org.java.personal.project.util.ConvertImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -92,9 +94,9 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage(), userId + IS_NOT_EXISTS.getMessage());
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), userId + IS_NOT_EXISTS.getMessage());
 
-        List<Story> currentUsersStories = storyRepository.findStoryByCurrentUserStory(currentUser);
+        List<Story> currentUsersStories = storyRepository.findStoriesByCurrentUserStory(currentUser);
         if(currentUsersStories.size() == 0 || currentUsersStories == null)
             return statusResponse.statusOk(new ArrayList<>());
 
@@ -117,7 +119,7 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage() + userId + IS_NOT_EXISTS, null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS, null);
 
         StoryCollection storyCollection = new StoryCollection(
                 storyCollectionRequestDTO.getCollectionName(),
@@ -137,7 +139,7 @@ public class StoryServiceImpl implements StoryService {
         List<String> failedCollectionIds = new ArrayList<>();
 
         if(currentUser == null)
-            return statusResponse.statusNotFound(YOUR_USERNAME_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
 
         Iterator<String> deletedStoryIdIterator = storyCollectionWhenUpdateRequestDTO.getDeletedStoryIdList().iterator();
         while(deletedStoryIdIterator.hasNext()){
@@ -165,6 +167,32 @@ public class StoryServiceImpl implements StoryService {
         return statusResponse.statusOk(response);
         
     }
+
+    @Override
+    public StatusResponse getOneStoryByStoryIdAndUserId(String storyId, String userId) throws IOException {
+        StatusResponse statusResponse = new StatusResponse();
+        OneHeadStoryResponse oneHeadStoryResponse = new OneHeadStoryResponse();
+        StoryResponse storyResponse = new StoryResponse();
+
+        List<String> storyNames = new ArrayList<>();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), null);
+
+        Story currentStory = storyRepository.findStoryByStoryIdAndCurrentUserStory(storyId, currentUser);
+        if(currentStory == null)
+            return statusResponse.statusNotFound(USER_STORY_IS_NOT_FOUND.getMessage() + storyId, null);
+
+        storyNames.add(currentStory.getStoryFileName());
+        storyResponse.setStoryId(currentStory.getStoryId());
+        storyResponse.setStoryFileBase64(convertImageOrVideoUtil.convertFileOneByOne(currentStory.getStoryFileName()));
+        storyResponse.setMentionedUsers(insertMentionedUsers(currentStory));
+        storyResponse.setUsername(currentUser.getUsername());
+
+        oneHeadStoryResponse.setStory(storyResponse);
+        return statusResponse.statusOk(oneHeadStoryResponse);
+       }
 
     private void insertAnotherStoryFromCollection(StoryCollection storyCollection, StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, List<Story> stories) {
         if(storyCollectionWhenUpdateRequestDTO.getAddedStoryIdList() == null)
