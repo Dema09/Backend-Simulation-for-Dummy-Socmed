@@ -18,6 +18,8 @@ public class Comment {
     @LastModifiedDate
     private Date lastModified;
 
+    private boolean isUpdated;
+
     public String getComment() {
         return comment;
     }
@@ -48,5 +50,13 @@ public class Comment {
 
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;
+    }
+
+    public boolean isUpdated() {
+        return isUpdated;
+    }
+
+    public void setUpdated(boolean updated) {
+        isUpdated = updated;
     }
 }

@@ -35,4 +35,6 @@ public interface PostService {
     StatusResponse getTaggedPostByUserId(String userId) throws IOException;
 
     StatusResponse unlikePost(String postId, String userId);
+
+    StatusResponse updateComment(String postId, CommentPostDTO commentPostDTO);
 }

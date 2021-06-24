@@ -466,6 +466,21 @@ public class PostServiceImpl implements PostService {
         return statusResponse.statusOk(SUCCESSFULLY_UNLIKE_POST.getMessage());
     }
 
+    @Override
+    public StatusResponse updateComment(String postId, CommentPostDTO commentPostDTO) {
+        StatusResponse statusResponse = new StatusResponse();
+
+        DummyUser currentUser = userRepository.findOne(commentPostDTO.getUserId());
+        if(currentUser == null)
+            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage(), null);
+
+        Post currentPost = postRepository.findOne(postId);
+        if(currentPost == null)
+            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
+
+        return null;
+    }
+
     private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses, List<String> postBases64) throws IOException {
         PostResponse currentPostResponse = insertToPostResponse(post, postBases64);
         postResponses.add(currentPostResponse);
