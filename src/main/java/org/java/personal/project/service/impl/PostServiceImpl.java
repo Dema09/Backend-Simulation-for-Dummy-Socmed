@@ -445,6 +445,27 @@ public class PostServiceImpl implements PostService {
         return statusResponse.statusOk(taggedPostResponse);
     }
 
+    @Override
+    public StatusResponse unlikePost(String postId, String userId) {
+        StatusResponse statusResponse = new StatusResponse();
+
+        DummyUser currentUser = userRepository.findOne(userId);
+        if(currentUser == null)
+            return statusResponse.statusBadRequest(USER_NOT_FOUND.getMessage() + userId, null);
+
+        Post currentUnlikePost = postRepository.findOne(postId);
+        if(currentUnlikePost == null)
+            return statusResponse.statusBadRequest(POST_NOT_FOUND.getMessage(), null);
+
+        Iterator<DummyUser> dummyUserIterator = currentUnlikePost.getUserLike().iterator();
+        while(dummyUserIterator.hasNext()){
+            DummyUser userWhoWantToRemove = dummyUserIterator.next();
+            if(userWhoWantToRemove.getId().equals(currentUser.getId()))
+                dummyUserIterator.remove();
+        }
+        return statusResponse.statusOk(SUCCESSFULLY_UNLIKE_POST.getMessage());
+    }
+
     private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses, List<String> postBases64) throws IOException {
         PostResponse currentPostResponse = insertToPostResponse(post, postBases64);
         postResponses.add(currentPostResponse);

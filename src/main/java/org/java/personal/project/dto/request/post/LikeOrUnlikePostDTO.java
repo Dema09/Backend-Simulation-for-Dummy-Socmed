@@ -1,6 +1,6 @@
 package org.java.personal.project.dto.request.post;
 
-public class LikePostDTO {
+public class LikeOrUnlikePostDTO {
     private String postId;
     private String userId;
 

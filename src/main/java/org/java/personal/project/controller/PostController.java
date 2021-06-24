@@ -4,7 +4,6 @@ import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.StatusResponse;
 import org.java.personal.project.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +39,15 @@ public class PostController {
     }
 
     @PostMapping("/likePost")
-    private ResponseEntity likePost(@RequestBody LikePostDTO likePostDTO){
-        StatusResponse likeResponse = postService.likePost(likePostDTO.getPostId(), likePostDTO.getUserId());
+    private ResponseEntity likePost(@RequestBody LikeOrUnlikePostDTO likeOrUnlikePostDTO){
+        StatusResponse likeResponse = postService.likePost(likeOrUnlikePostDTO.getPostId(), likeOrUnlikePostDTO.getUserId());
         return new ResponseEntity(likeResponse, likeResponse.getResponse());
+    }
+
+    @PostMapping("/unlikePost")
+    private ResponseEntity unlikePost(@RequestBody LikeOrUnlikePostDTO likeOrUnlikePostDTO){
+        StatusResponse unlikePostResponse = postService.unlikePost(likeOrUnlikePostDTO.getPostId(), likeOrUnlikePostDTO.getUserId());
+        return new ResponseEntity(unlikePostResponse, unlikePostResponse.getResponse());
     }
 
     @GetMapping("/getPost/{postId}")
