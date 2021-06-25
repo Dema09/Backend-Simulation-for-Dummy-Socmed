@@ -467,7 +467,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public StatusResponse updateComment(String postId, CommentPostDTO commentPostDTO) {
+    public StatusResponse deleteComment(String postId, CommentPostDTO commentPostDTO) {
         StatusResponse statusResponse = new StatusResponse();
 
         DummyUser currentUser = userRepository.findOne(commentPostDTO.getUserId());
@@ -479,6 +479,12 @@ public class PostServiceImpl implements PostService {
             return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
 
         return null;
+
+//        Iterator<Comment> commentIterator = currentPost.getComments().iterator();
+//        while(commentIterator.hasNext()){
+//            DummyUser userWhoWan = commentIterator.next().getAuthor();
+//
+//        }
     }
 
     private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses, List<String> postBases64) throws IOException {

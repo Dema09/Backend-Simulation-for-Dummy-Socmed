@@ -36,5 +36,5 @@ public interface PostService {
 
     StatusResponse unlikePost(String postId, String userId);
 
-    StatusResponse updateComment(String postId, CommentPostDTO commentPostDTO);
+    StatusResponse deleteComment(String postId, CommentPostDTO commentPostDTO);
 }

@@ -3,9 +3,10 @@ package org.java.personal.project.domain;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-
+@Document(collection = "comment")
 public class Comment {
     private String comment;
 
