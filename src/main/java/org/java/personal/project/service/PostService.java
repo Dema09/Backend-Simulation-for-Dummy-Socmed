@@ -12,8 +12,6 @@ public interface PostService {
 
     StatusResponse getUserPostById(String userId) throws IOException;
 
-    StatusResponse commentToUserPost(CommentPostDTO commentPostDTO, String postId);
-
     StatusResponse likePost(String postId, String userId);
 
     StatusResponse getOnePostByUserId(String postId,String userId) throws IOException;
@@ -35,6 +33,4 @@ public interface PostService {
     StatusResponse getTaggedPostByUserId(String userId) throws IOException;
 
     StatusResponse unlikePost(String postId, String userId);
-
-    StatusResponse deleteComment(String postId, CommentPostDTO commentPostDTO);
 }
