@@ -23,7 +23,8 @@ public enum AppEnum {
     SUCCESSFULLY_INSERT_OR_UPDATE_POST_COLLECTION("Successfully insert or update your post collection!"),
     SUCCESSFULLY_UPDATE_POST_COLLECTION_NAME("Successfully update your post collection's name!"),
     POINT("Point"),
-    SUCCESSFULLY_UPDATE_YOUR_POST_COLLECTION_WITH_ID("Successfully update your post collection with id: ");
+    SUCCESSFULLY_UPDATE_YOUR_POST_COLLECTION_WITH_ID("Successfully update your post collection with id: "),
+    SUCCESSFULLY_UNLIKE_POST("Successfully unlike post!");
 
 
     private String message;
