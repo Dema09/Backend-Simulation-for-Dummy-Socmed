@@ -139,11 +139,13 @@ public class PostServiceImpl implements PostService {
     private PostResponse insertToPostResponse(Post post, List<String> postBases64) throws IOException {
         PostResponse postResponse = new PostResponse();
 
+        List<Comment> comments = commentRepository.findAllByPost(post);
+
         postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
         postResponse.setCaption(post.getPostCaption());
         postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
         postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
-        postResponse.setComments(post.getComments() == null ? new ArrayList<>() : insertCommentResponse(post.getComments()));
+        postResponse.setComments(insertCommentResponse(comments).size() == 0 ? new ArrayList<>() : insertCommentResponse(comments));
         postResponse.setLocationResponse(post.getPostOrStoryLocation() == null ? new LocationHeadResponse() : insertLocationResponse(post.getPostOrStoryLocation()));
 
         return postResponse;
@@ -193,7 +195,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public StatusResponse commentToUserPost(CommentPostDTO commentPostDTO, String postId) {
         StatusResponse statusResponse = new StatusResponse();
-        List<Comment> comments = new ArrayList<>();
 
         Post currentPost = postRepository.findOne(postId);
         if(currentPost == null)
@@ -206,12 +207,10 @@ public class PostServiceImpl implements PostService {
         Comment comment = new Comment();
         comment.setComment(commentPostDTO.getComment());
         comment.setAuthor(currentUser);
-        comments.add(comment);
+        comment.setPost(currentPost);
 
-        currentPost.setComments(comments);
-        postRepository.save(currentPost);
-
-        return statusResponse.statusOk(SUCCESSFULLY_ADD_COMMENT.getMessage());
+        commentRepository.save(comment);
+        return statusResponse.statusCreated(SUCCESSFULLY_ADD_COMMENT.getMessage(), comment.getCommentId());
     }
 
     @Override
@@ -250,12 +249,14 @@ public class PostServiceImpl implements PostService {
         if(currentPost == null)
             return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
 
+        List<Comment> comments = commentRepository.findAllByPost(currentPost);
+
         PostResponse postResponse = new PostResponse();
         postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(currentPost.getPostPicture(), postBases64));
         postResponse.setCaption(currentPost.getPostCaption());
         postResponse.setNumberOfLikes(currentPost.getUserLike() == null ? 0 : currentPost.getUserLike().size());
         postResponse.setLikes(insertUserLikeResponse(currentPost.getUserLike() == null ? new ArrayList<>() : currentPost.getUserLike()));
-        postResponse.setComments(currentPost.getComments() == null ? new ArrayList<>() : insertCommentResponse(currentPost.getComments()));
+        postResponse.setComments(insertCommentResponse(comments).size() == 0 ? new ArrayList<>() : insertCommentResponse(comments));
         postResponse.setLocationResponse(currentPost.getPostOrStoryLocation() == null ? null : insertLocationResponse(currentPost.getPostOrStoryLocation()));
 
         return statusResponse.statusOk(postResponse);

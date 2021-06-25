@@ -20,7 +20,6 @@ public class Post{
     private boolean isUpdated;
     private List<DummyUser> userLike;
     private List<DummyUser> mentionedUsers;
-    private List<Comment> comments;
     private boolean persisted;
 
     @CreatedDate
@@ -75,20 +74,12 @@ public class Post{
         this.userLike = userLike;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
-
     public boolean isUpdated() {
         return isUpdated;
     }
 
     public void setUpdated(boolean updated) {
         isUpdated = updated;
-    }
-
-    public void setComments(List<Comment > comments) {
-        this.comments = comments;
     }
 
     public DummyUser getDummyUser() {
