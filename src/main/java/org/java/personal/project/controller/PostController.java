@@ -32,11 +32,7 @@ public class PostController {
         return new ResponseEntity(getUserPostResponse, getUserPostResponse.getResponse());
     }
 
-    @PostMapping("/comment/{postId}")
-    public ResponseEntity commentToOtherUser(@PathVariable String postId, @RequestBody CommentPostDTO commentPostDTO){
-        StatusResponse commentResponse = postService.commentToUserPost(commentPostDTO, postId);
-        return new ResponseEntity(commentResponse, commentResponse.getResponse());
-    }
+
 
     @PostMapping("/likePost")
     public ResponseEntity likePost(@RequestBody LikeOrUnlikePostDTO likeOrUnlikePostDTO){
@@ -105,10 +101,6 @@ public class PostController {
         return new ResponseEntity(getTaggedPostResponse, getTaggedPostResponse.getResponse());
     }
 
-    @PutMapping("/deleteComment/{postId}")
-    public ResponseEntity deleteComment(@PathVariable String postId, @RequestBody CommentPostDTO commentPostDTO){
-        StatusResponse updateCommentResponse = postService.deleteComment(postId, commentPostDTO);
-        return new ResponseEntity(updateCommentResponse, updateCommentResponse.getResponse());
-    }
+
 
 }

@@ -193,27 +193,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public StatusResponse commentToUserPost(CommentPostDTO commentPostDTO, String postId) {
-        StatusResponse statusResponse = new StatusResponse();
-
-        Post currentPost = postRepository.findOne(postId);
-        if(currentPost == null)
-            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
-
-        DummyUser currentUser = userRepository.findOne(commentPostDTO.getUserId());
-        if(currentUser == null)
-            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage() + commentPostDTO.getUserId(), null);
-
-        Comment comment = new Comment();
-        comment.setComment(commentPostDTO.getComment());
-        comment.setAuthor(currentUser);
-        comment.setPost(currentPost);
-
-        commentRepository.save(comment);
-        return statusResponse.statusCreated(SUCCESSFULLY_ADD_COMMENT.getMessage(), comment.getCommentId());
-    }
-
-    @Override
     public StatusResponse likePost(String postId, String userId) {
         StatusResponse statusResponse = new StatusResponse();
         Post currentPost = postRepository.findOne(postId);
@@ -465,27 +444,6 @@ public class PostServiceImpl implements PostService {
                 dummyUserIterator.remove();
         }
         return statusResponse.statusOk(SUCCESSFULLY_UNLIKE_POST.getMessage());
-    }
-
-    @Override
-    public StatusResponse deleteComment(String postId, CommentPostDTO commentPostDTO) {
-        StatusResponse statusResponse = new StatusResponse();
-
-        DummyUser currentUser = userRepository.findOne(commentPostDTO.getUserId());
-        if(currentUser == null)
-            return statusResponse.statusNotFound(USER_NOT_FOUND.getMessage(), null);
-
-        Post currentPost = postRepository.findOne(postId);
-        if(currentPost == null)
-            return statusResponse.statusNotFound(POST_NOT_FOUND.getMessage(), null);
-
-        return null;
-
-//        Iterator<Comment> commentIterator = currentPost.getComments().iterator();
-//        while(commentIterator.hasNext()){
-//            DummyUser userWhoWan = commentIterator.next().getAuthor();
-//
-//        }
     }
 
     private void insertToTaggedPostResponse(Post post, List<PostResponse> postResponses, List<String> postBases64) throws IOException {
