@@ -105,8 +105,8 @@ public class PostController {
         return new ResponseEntity(getTaggedPostResponse, getTaggedPostResponse.getResponse());
     }
 
-    @PutMapping("/updateComment/{postId}")
-    public ResponseEntity updateComment(@PathVariable String postId, @RequestBody CommentPostDTO commentPostDTO){
+    @PutMapping("/deleteComment/{postId}")
+    public ResponseEntity deleteComment(@PathVariable String postId, @RequestBody CommentPostDTO commentPostDTO){
         StatusResponse updateCommentResponse = postService.deleteComment(postId, commentPostDTO);
         return new ResponseEntity(updateCommentResponse, updateCommentResponse.getResponse());
     }
