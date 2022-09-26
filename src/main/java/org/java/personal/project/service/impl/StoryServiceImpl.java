@@ -1,9 +1,6 @@
 package org.java.personal.project.service.impl;
 
-import org.java.personal.project.dao.PostOrStoryLocationRepository;
-import org.java.personal.project.dao.StoryCollectionRepository;
-import org.java.personal.project.dao.StoryRepository;
-import org.java.personal.project.dao.UserRepository;
+import org.java.personal.project.dao.*;
 import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
 import org.java.personal.project.dto.request.story.StoryCollectionWhenUpdateRequestDTO;
@@ -33,18 +30,21 @@ public class StoryServiceImpl implements StoryService {
     private final StoryCollectionRepository storyCollectionRepository;
     private final PostOrStoryLocationRepository postOrStoryLocationRepository;
     private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
+    private final StoryLatestRepository storyLatestRepository;
 
     @Autowired
     public StoryServiceImpl(StoryRepository storyRepository,
                             UserRepository userRepository,
                             StoryCollectionRepository storyCollectionRepository,
                             PostOrStoryLocationRepository postOrStoryLocationRepository,
-                            ConvertImageOrVideoUtil convertImageOrVideoUtil) {
+                            ConvertImageOrVideoUtil convertImageOrVideoUtil,
+                            StoryLatestRepository storyLatestRepository) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
         this.storyCollectionRepository = storyCollectionRepository;
         this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.convertImageOrVideoUtil = convertImageOrVideoUtil;
+        this.storyLatestRepository = storyLatestRepository;
     }
 
     @Override
@@ -66,13 +66,29 @@ public class StoryServiceImpl implements StoryService {
         convertImageOrVideoUtil.convertImage(storyRequestDTO.getStoryPost().getBytes(), storyRequestDTO.getStoryPost(), storyPosts);
 
         storyRepository.save(currentStory);
+        saveStoryToRedis(currentStory);
         return statusResponse.statusCreated(STORY_HAS_BEEN_CREATED.getMessage(), currentStory);
+    }
+
+    private void saveStoryToRedis(Story currentStory) {
+        StoryLatest storyLatest = StoryLatest
+                        .builder()
+                        .storyId(currentStory.getStoryId())
+                        .username(currentStory.getCurrentUserStory().getUsername())
+                        .storyLocation(currentStory.getStoryLocation().getLocationName())
+                        .storyFileName(currentStory.getStoryFileName())
+                        .isCloseFriendMode(currentStory.isCloseFriendMode())
+                        .mentionedUsername(currentStory.getMentionPeople())
+                        .build();
+        storyLatestRepository.save(storyLatest);
     }
 
     private PostOrStoryLocation insertStoryLocationDetails(StoryRequestDTO storyRequestDTO) {
         PostOrStoryLocation storyLocation = new PostOrStoryLocation();
-        storyLocation.setLocationName(storyRequestDTO.getStoryLocation().getLocationName());
-        storyLocation.setLocation(insertStoryLocation(storyRequestDTO));
+        if(storyRequestDTO.getStoryLocation() != null){
+            storyLocation.setLocationName(storyRequestDTO.getStoryLocation().getLocationName());
+            storyLocation.setLocation(insertStoryLocation(storyRequestDTO));
+        }
 
         postOrStoryLocationRepository.save(storyLocation);
         return storyLocation;
@@ -169,7 +185,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StatusResponse getOneStoryByStoryIdAndUserId(String storyId, String userId) throws IOException {
+    public StatusResponse getCurrentStoryByStoryIdAndUserId(String storyId, String userId) throws IOException {
         StatusResponse statusResponse = new StatusResponse();
         OneHeadStoryResponse oneHeadStoryResponse = new OneHeadStoryResponse();
         StoryResponse storyResponse = new StoryResponse();
@@ -178,7 +194,7 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
 
         Story currentStory = storyRepository.findStoryByStoryIdAndCurrentUserStory(storyId, currentUser);
         if(currentStory == null)
