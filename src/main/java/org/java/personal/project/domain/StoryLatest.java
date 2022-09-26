@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Builder
 @RedisHash(value = "UserStory", timeToLive = 86400)
 public class StoryLatest {
+    @Id
     private String storyId;
     private String userId;
     private String username;

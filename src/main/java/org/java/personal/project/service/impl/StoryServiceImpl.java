@@ -1,5 +1,6 @@
 package org.java.personal.project.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.java.personal.project.dao.*;
 import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
@@ -23,6 +24,7 @@ import java.util.List;
 import static org.java.personal.project.constant.AppEnum.*;
 
 @Service
+@Slf4j
 public class StoryServiceImpl implements StoryService {
 
     private final StoryRepository storyRepository;
@@ -60,8 +62,8 @@ public class StoryServiceImpl implements StoryService {
         Story currentStory = new Story();
         currentStory.setStoryFileName(storyRequestDTO.getStoryPost().getOriginalFilename());
         currentStory.setCurrentUserStory(currentUser);
-        currentStory.setMentionPeople((storyRequestDTO.getMentionUsers() == null || storyRequestDTO.getMentionUsers().size() == 0) ? new ArrayList<>() : insertMentionPeopleInTheStory(storyRequestDTO.getMentionUsers()));
-        currentStory.setStoryLocation(insertStoryLocationDetails(storyRequestDTO));
+        currentStory.setMentionPeople(storyRequestDTO.getMentionUsers().isEmpty() ? new ArrayList<>() : insertMentionPeopleInTheStory(storyRequestDTO.getMentionUsers()));
+        currentStory.setStoryLocation(storyRequestDTO.getStoryLocation() != null ? insertStoryLocationDetails(storyRequestDTO) : null);
 
         convertImageOrVideoUtil.convertImage(storyRequestDTO.getStoryPost().getBytes(), storyRequestDTO.getStoryPost(), storyPosts);
 
@@ -73,22 +75,22 @@ public class StoryServiceImpl implements StoryService {
     private void saveStoryToRedis(Story currentStory) {
         StoryLatest storyLatest = StoryLatest
                         .builder()
+                        .userId(currentStory.getCurrentUserStory().getId())
                         .storyId(currentStory.getStoryId())
                         .username(currentStory.getCurrentUserStory().getUsername())
-                        .storyLocation(currentStory.getStoryLocation().getLocationName())
+                        .storyLocation(currentStory.getStoryLocation() != null ? currentStory.getStoryLocation().getLocationName() : "")
                         .storyFileName(currentStory.getStoryFileName())
                         .isCloseFriendMode(currentStory.isCloseFriendMode())
                         .mentionedUsername(currentStory.getMentionPeople())
                         .build();
         storyLatestRepository.save(storyLatest);
+        log.info("Story Latest on Redis: {}", storyLatestRepository.findOne(storyLatest.getStoryId()));
     }
 
     private PostOrStoryLocation insertStoryLocationDetails(StoryRequestDTO storyRequestDTO) {
         PostOrStoryLocation storyLocation = new PostOrStoryLocation();
-        if(storyRequestDTO.getStoryLocation() != null){
-            storyLocation.setLocationName(storyRequestDTO.getStoryLocation().getLocationName());
-            storyLocation.setLocation(insertStoryLocation(storyRequestDTO));
-        }
+        storyLocation.setLocationName(storyRequestDTO.getStoryLocation().getLocationName());
+        storyLocation.setLocation(insertStoryLocation(storyRequestDTO));
 
         postOrStoryLocationRepository.save(storyLocation);
         return storyLocation;
