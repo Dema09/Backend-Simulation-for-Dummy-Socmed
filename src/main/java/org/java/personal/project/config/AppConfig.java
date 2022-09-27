@@ -10,6 +10,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.client.RestTemplate;
+import redis.clients.jedis.JedisPoolConfig;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
@@ -35,6 +36,10 @@ public class AppConfig {
         factory.setPort(redisPort);
         factory.setUsePool(true);
 
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxIdle(30);
+        jedisPoolConfig.setMinIdle(10);
+        factory.setPoolConfig(jedisPoolConfig);
         return factory;
     }
 
