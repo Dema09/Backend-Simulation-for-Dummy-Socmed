@@ -19,5 +19,6 @@ public interface StoryService {
 
     StatusResponse updateStoryCollection(StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, String userId);
 
-    StatusResponse getOneStoryByStoryIdAndUserId(String postId, String userId) throws IOException;
+    StatusResponse getCurrentStoryByStoryIdAndUserId(String postId, String userId) throws IOException;
+
 }

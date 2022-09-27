@@ -1,9 +1,7 @@
 package org.java.personal.project.service.impl;
 
-import org.java.personal.project.dao.PostOrStoryLocationRepository;
-import org.java.personal.project.dao.StoryCollectionRepository;
-import org.java.personal.project.dao.StoryRepository;
-import org.java.personal.project.dao.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.java.personal.project.dao.*;
 import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.story.StoryCollectionRequestDTO;
 import org.java.personal.project.dto.request.story.StoryCollectionWhenUpdateRequestDTO;
@@ -26,6 +24,7 @@ import java.util.List;
 import static org.java.personal.project.constant.AppEnum.*;
 
 @Service
+@Slf4j
 public class StoryServiceImpl implements StoryService {
 
     private final StoryRepository storyRepository;
@@ -33,18 +32,21 @@ public class StoryServiceImpl implements StoryService {
     private final StoryCollectionRepository storyCollectionRepository;
     private final PostOrStoryLocationRepository postOrStoryLocationRepository;
     private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
+    private final StoryLatestRepository storyLatestRepository;
 
     @Autowired
     public StoryServiceImpl(StoryRepository storyRepository,
                             UserRepository userRepository,
                             StoryCollectionRepository storyCollectionRepository,
                             PostOrStoryLocationRepository postOrStoryLocationRepository,
-                            ConvertImageOrVideoUtil convertImageOrVideoUtil) {
+                            ConvertImageOrVideoUtil convertImageOrVideoUtil,
+                            StoryLatestRepository storyLatestRepository) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
         this.storyCollectionRepository = storyCollectionRepository;
         this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.convertImageOrVideoUtil = convertImageOrVideoUtil;
+        this.storyLatestRepository = storyLatestRepository;
     }
 
     @Override
@@ -60,13 +62,29 @@ public class StoryServiceImpl implements StoryService {
         Story currentStory = new Story();
         currentStory.setStoryFileName(storyRequestDTO.getStoryPost().getOriginalFilename());
         currentStory.setCurrentUserStory(currentUser);
-        currentStory.setMentionPeople((storyRequestDTO.getMentionUsers() == null || storyRequestDTO.getMentionUsers().size() == 0) ? new ArrayList<>() : insertMentionPeopleInTheStory(storyRequestDTO.getMentionUsers()));
-        currentStory.setStoryLocation(insertStoryLocationDetails(storyRequestDTO));
+        currentStory.setMentionPeople(storyRequestDTO.getMentionUsers().isEmpty() ? new ArrayList<>() : insertMentionPeopleInTheStory(storyRequestDTO.getMentionUsers()));
+        currentStory.setStoryLocation(storyRequestDTO.getStoryLocation() != null ? insertStoryLocationDetails(storyRequestDTO) : null);
 
         convertImageOrVideoUtil.convertImage(storyRequestDTO.getStoryPost().getBytes(), storyRequestDTO.getStoryPost(), storyPosts);
 
         storyRepository.save(currentStory);
+        saveStoryToRedis(currentStory);
         return statusResponse.statusCreated(STORY_HAS_BEEN_CREATED.getMessage(), currentStory);
+    }
+
+    private void saveStoryToRedis(Story currentStory) {
+        StoryLatest storyLatest = StoryLatest
+                        .builder()
+                        .userId(currentStory.getCurrentUserStory().getId())
+                        .storyId(currentStory.getStoryId())
+                        .username(currentStory.getCurrentUserStory().getUsername())
+                        .storyLocation(currentStory.getStoryLocation() != null ? currentStory.getStoryLocation().getLocationName() : "")
+                        .storyFileName(currentStory.getStoryFileName())
+                        .isCloseFriendMode(currentStory.isCloseFriendMode())
+                        .mentionedUsername(currentStory.getMentionPeople())
+                        .build();
+        storyLatestRepository.save(storyLatest);
+        log.info("Story Latest on Redis: {}", storyLatestRepository.findOne(storyLatest.getStoryId()));
     }
 
     private PostOrStoryLocation insertStoryLocationDetails(StoryRequestDTO storyRequestDTO) {
@@ -169,7 +187,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StatusResponse getOneStoryByStoryIdAndUserId(String storyId, String userId) throws IOException {
+    public StatusResponse getCurrentStoryByStoryIdAndUserId(String storyId, String userId) throws IOException {
         StatusResponse statusResponse = new StatusResponse();
         OneHeadStoryResponse oneHeadStoryResponse = new OneHeadStoryResponse();
         StoryResponse storyResponse = new StoryResponse();
@@ -178,7 +196,7 @@ public class StoryServiceImpl implements StoryService {
 
         DummyUser currentUser = userRepository.findOne(userId);
         if(currentUser == null)
-            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), null);
+            return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage() + userId + IS_NOT_EXISTS.getMessage(), null);
 
         Story currentStory = storyRepository.findStoryByStoryIdAndCurrentUserStory(storyId, currentUser);
         if(currentStory == null)

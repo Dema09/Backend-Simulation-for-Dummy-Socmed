@@ -48,8 +48,7 @@ public class StoryController {
 
     @GetMapping("/getUserStory/{storyId}")
     private ResponseEntity getUserStoryByPostId(@PathVariable String storyId, @RequestHeader(value = "userId") String userId) throws IOException {
-        StatusResponse getUserStoryResponse = storyService.getOneStoryByStoryIdAndUserId(storyId, userId);
+        StatusResponse getUserStoryResponse = storyService.getCurrentStoryByStoryIdAndUserId(storyId, userId);
         return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
     }
-
 }
