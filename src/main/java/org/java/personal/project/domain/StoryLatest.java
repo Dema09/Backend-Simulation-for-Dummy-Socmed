@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -18,7 +21,8 @@ public class StoryLatest {
     private String storyId;
     private String userId;
     private String username;
-    private String createdAt;
+    @CreatedDate
+    private Date createdDate;
     private String storyFileName;
     private String storyLocation;
     private List<DummyUser> mentionedUsername;

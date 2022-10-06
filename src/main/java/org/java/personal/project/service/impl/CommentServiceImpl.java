@@ -12,7 +12,7 @@ import org.java.personal.project.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static org.java.personal.project.constant.AppEnum.*;
+import static org.java.personal.project.enumeration.AppEnum.*;
 
 @Service
 public class CommentServiceImpl implements CommentService {

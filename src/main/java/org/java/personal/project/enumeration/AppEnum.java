@@ -1,4 +1,4 @@
-package org.java.personal.project.constant;
+package org.java.personal.project.enumeration;
 
 public enum AppEnum {
     THIS_USER_WITH_ID("Your username with id: "),
