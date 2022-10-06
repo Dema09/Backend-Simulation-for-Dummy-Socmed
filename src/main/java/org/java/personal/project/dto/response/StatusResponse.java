@@ -1,6 +1,6 @@
 package org.java.personal.project.dto.response;
 
-import org.java.personal.project.constant.StatusEnum;
+import org.java.personal.project.enumeration.StatusEnum;
 import org.springframework.http.HttpStatus;
 
 public class StatusResponse extends BaseResponse{

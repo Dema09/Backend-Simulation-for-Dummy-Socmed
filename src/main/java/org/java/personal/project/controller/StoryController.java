@@ -23,32 +23,39 @@ public class StoryController {
     }
 
     @PostMapping("/createStory/{userId}")
-    private ResponseEntity createStory(@ModelAttribute StoryRequestDTO storyRequestDTO, @PathVariable String userId) throws Exception {
+    public ResponseEntity createStory(@ModelAttribute StoryRequestDTO storyRequestDTO, @PathVariable String userId) throws Exception {
         StatusResponse createStoryResponse = storyService.createStory(storyRequestDTO, userId);
         return new ResponseEntity(createStoryResponse, createStoryResponse.getResponse());
     }
 
     @GetMapping("/getStoryArchive/{userId}")
-    private ResponseEntity getUserStoryByUserId(@PathVariable String userId){
+    public ResponseEntity getUserStoryByUserId(@PathVariable String userId){
         StatusResponse getUserStoryResponse = storyService.getUserStoryByUserId(userId);
         return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
     }
 
     @PostMapping("/createCollection")
-    private ResponseEntity createStoryCollection(@RequestBody StoryCollectionRequestDTO storyCollectionRequestDTO, @RequestHeader(value = "userId") String userId){
+    public ResponseEntity createStoryCollection(@RequestBody StoryCollectionRequestDTO storyCollectionRequestDTO, @RequestHeader(value = "userId") String userId){
         StatusResponse createStoryCollectionResponse = storyService.createStoryCollection(storyCollectionRequestDTO, userId);
         return new ResponseEntity(createStoryCollectionResponse, createStoryCollectionResponse.getResponse());
     }
 
     @PostMapping("/updateCollection")
-    private ResponseEntity updateStoryCollection(@RequestHeader(value = "userId") String userId, @RequestBody StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO){
+    public ResponseEntity updateStoryCollection(@RequestHeader(value = "userId") String userId, @RequestBody StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO){
         StatusResponse updateStoryResponse = storyService.updateStoryCollection(storyCollectionWhenUpdateRequestDTO, userId);
         return new ResponseEntity(updateStoryResponse, updateStoryResponse.getResponse());
     }
 
     @GetMapping("/getUserStory/{storyId}")
-    private ResponseEntity getUserStoryByPostId(@PathVariable String storyId, @RequestHeader(value = "userId") String userId) throws IOException {
+    public ResponseEntity getUserStoryByPostId(@PathVariable String storyId, @RequestHeader(value = "userId") String userId) throws IOException {
         StatusResponse getUserStoryResponse = storyService.getCurrentStoryByStoryIdAndUserId(storyId, userId);
         return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
     }
+
+    @GetMapping("/getAvailableStoryFromOther/{userId}")
+    public ResponseEntity getAvailableStoryFromOtherByItsFollowingByUserId(@PathVariable String userId) throws IOException {
+        StatusResponse getAvailableStoryResponse = storyService.getAvailableStoryFromOtherWithin1DayByItsFollowing(userId);
+        return new ResponseEntity(getAvailableStoryResponse, getAvailableStoryResponse.getResponse());
+    }
+
 }

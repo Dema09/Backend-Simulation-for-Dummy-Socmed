@@ -12,7 +12,7 @@ import org.java.personal.project.dto.response.story.OneHeadStoryResponse;
 import org.java.personal.project.dto.response.story.StoryResponse;
 import org.java.personal.project.dto.response.story.StoryResponseAfterUpdate;
 import org.java.personal.project.service.StoryService;
-import org.java.personal.project.util.ConvertImageOrVideoUtil;
+import org.java.personal.project.util.ImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.java.personal.project.constant.AppEnum.*;
+import static org.java.personal.project.enumeration.AppEnum.*;
 
 @Service
 @Slf4j
@@ -31,22 +31,25 @@ public class StoryServiceImpl implements StoryService {
     private final UserRepository userRepository;
     private final StoryCollectionRepository storyCollectionRepository;
     private final PostOrStoryLocationRepository postOrStoryLocationRepository;
-    private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
+    private final ImageOrVideoUtil imageOrVideoUtil;
     private final StoryLatestRepository storyLatestRepository;
+    private final FollowerAndFollowingRepository followerAndFollowingRepository;
 
     @Autowired
     public StoryServiceImpl(StoryRepository storyRepository,
                             UserRepository userRepository,
                             StoryCollectionRepository storyCollectionRepository,
                             PostOrStoryLocationRepository postOrStoryLocationRepository,
-                            ConvertImageOrVideoUtil convertImageOrVideoUtil,
-                            StoryLatestRepository storyLatestRepository) {
+                            ImageOrVideoUtil imageOrVideoUtil,
+                            StoryLatestRepository storyLatestRepository,
+                            FollowerAndFollowingRepository followerAndFollowingRepository) {
         this.storyRepository = storyRepository;
         this.userRepository = userRepository;
         this.storyCollectionRepository = storyCollectionRepository;
         this.postOrStoryLocationRepository = postOrStoryLocationRepository;
-        this.convertImageOrVideoUtil = convertImageOrVideoUtil;
+        this.imageOrVideoUtil = imageOrVideoUtil;
         this.storyLatestRepository = storyLatestRepository;
+        this.followerAndFollowingRepository= followerAndFollowingRepository;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class StoryServiceImpl implements StoryService {
         currentStory.setMentionPeople(storyRequestDTO.getMentionUsers().isEmpty() ? new ArrayList<>() : insertMentionPeopleInTheStory(storyRequestDTO.getMentionUsers()));
         currentStory.setStoryLocation(storyRequestDTO.getStoryLocation() != null ? insertStoryLocationDetails(storyRequestDTO) : null);
 
-        convertImageOrVideoUtil.convertImage(storyRequestDTO.getStoryPost().getBytes(), storyRequestDTO.getStoryPost(), storyPosts);
+        imageOrVideoUtil.convertImage(storyRequestDTO.getStoryPost().getBytes(), storyRequestDTO.getStoryPost(), storyPosts);
 
         storyRepository.save(currentStory);
         saveStoryToRedis(currentStory);
@@ -83,6 +86,7 @@ public class StoryServiceImpl implements StoryService {
                         .isCloseFriendMode(currentStory.isCloseFriendMode())
                         .mentionedUsername(currentStory.getMentionPeople())
                         .build();
+
         storyLatestRepository.save(storyLatest);
         log.info("Story Latest on Redis: {}", storyLatestRepository.findOne(storyLatest.getStoryId()));
     }
@@ -204,13 +208,48 @@ public class StoryServiceImpl implements StoryService {
 
         storyNames.add(currentStory.getStoryFileName());
         storyResponse.setStoryId(currentStory.getStoryId());
-        storyResponse.setStoryFileBase64(convertImageOrVideoUtil.convertFileOneByOne(currentStory.getStoryFileName()));
+        storyResponse.setStoryFileBase64(imageOrVideoUtil.convertOneFile(currentStory.getStoryFileName()));
         storyResponse.setMentionedUsers(insertMentionedUsers(currentStory));
         storyResponse.setUsername(currentUser.getUsername());
 
         oneHeadStoryResponse.setStory(storyResponse);
         return statusResponse.statusOk(oneHeadStoryResponse);
        }
+
+    @Override
+    public StatusResponse getAvailableStoryFromOtherWithin1DayByItsFollowing(String userId) throws IOException {
+        StatusResponse statusResponse = new StatusResponse();
+        HeadStoryResponse headStoryResponse = new HeadStoryResponse();
+
+        DummyUser dummyUser = userRepository.findOne(userId);
+
+        if(dummyUser == null)
+            return statusResponse.statusNotFound("This User with Id " + userId + " doesn't exists!", null);
+
+        headStoryResponse.setStories(mapStoryBasedOnCurrentUserFollowing(dummyUser));
+        return statusResponse.statusOk(headStoryResponse);
+    }
+
+    private List<StoryResponse> mapStoryBasedOnCurrentUserFollowing(DummyUser dummyUser) throws IOException {
+        List<StoryResponse> storyResponses = new ArrayList<>();
+
+        FollowerAndFollowing followerAndFollowing = followerAndFollowingRepository.findFollowerAndFollowingByDummyUser(dummyUser);
+        for(DummyUser currentFollowingUser : followerAndFollowing.getFollowings()){
+            StoryLatest storyLatest = storyLatestRepository.findStoryLatestByUserId(currentFollowingUser.getId());
+            if(storyLatest != null)
+                storyResponses.add(insertToStoryResponse(storyLatest, new StoryResponse()));
+        }
+        return storyResponses;
+    }
+
+    private StoryResponse insertToStoryResponse(StoryLatest storyLatest, StoryResponse storyResponse) throws IOException {
+        storyResponse.setStoryId(storyLatest.getStoryId());
+        storyResponse.setStoryFileBase64(imageOrVideoUtil.convertOneFile(storyLatest.getStoryFileName()));
+        storyResponse.setUsername(storyLatest.getUsername());
+//        storyResponse.setTimeDiffToString();
+
+        return storyResponse;
+    }
 
     private void insertAnotherStoryFromCollection(StoryCollection storyCollection, StoryCollectionWhenUpdateRequestDTO storyCollectionWhenUpdateRequestDTO, List<Story> stories) {
         if(storyCollectionWhenUpdateRequestDTO.getAddedStoryIdList() == null)

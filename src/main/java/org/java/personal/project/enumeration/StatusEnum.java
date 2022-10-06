@@ -1,4 +1,4 @@
-package org.java.personal.project.constant;
+package org.java.personal.project.enumeration;
 
 public enum StatusEnum {
     INTERNAL_SERVER_ERROR("Internal Server Error"),

@@ -21,4 +21,5 @@ public interface StoryService {
 
     StatusResponse getCurrentStoryByStoryIdAndUserId(String postId, String userId) throws IOException;
 
+    StatusResponse getAvailableStoryFromOtherWithin1DayByItsFollowing(String userId) throws IOException;
 }

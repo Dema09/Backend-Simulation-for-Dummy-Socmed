@@ -1,6 +1,6 @@
 package org.java.personal.project.util;
 
-import org.java.personal.project.constant.MediaFormatEnum;
+import org.java.personal.project.enumeration.MediaFormatEnum;
 
 public class ValidationUtil {
 

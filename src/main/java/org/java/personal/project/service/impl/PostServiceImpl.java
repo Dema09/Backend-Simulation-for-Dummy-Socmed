@@ -6,7 +6,7 @@ import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.*;
 import org.java.personal.project.dto.response.post.*;
 import org.java.personal.project.service.PostService;
-import org.java.personal.project.util.ConvertImageOrVideoUtil;
+import org.java.personal.project.util.ImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.java.personal.project.constant.AppEnum.*;
+import static org.java.personal.project.enumeration.AppEnum.*;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
     private final PostOrStoryLocationRepository postOrStoryLocationRepository;
     private final PostCollectionRepository postCollectionRepository;
     private final Environment env;
-    private final ConvertImageOrVideoUtil convertImageOrVideoUtil;
+    private final ImageOrVideoUtil imageOrVideoUtil;
 
     @Autowired
     public PostServiceImpl(PostRepository postRepository,
@@ -37,14 +37,14 @@ public class PostServiceImpl implements PostService {
                            PostCollectionRepository postCollectionRepository,
                            PostOrStoryLocationRepository postOrStoryLocationRepository,
                            Environment env,
-                           ConvertImageOrVideoUtil convertImageOrVideoUtil) {
+                           ImageOrVideoUtil imageOrVideoUtil) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.postCollectionRepository = postCollectionRepository;
         this.postOrStoryLocationRepository = postOrStoryLocationRepository;
         this.env = env;
-        this.convertImageOrVideoUtil = convertImageOrVideoUtil;
+        this.imageOrVideoUtil = imageOrVideoUtil;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class PostServiceImpl implements PostService {
 
         Post currentPost = new Post();
         for(MultipartFile file : userPostDTO.getPostPicture()){
-            currentPost.setPostPicture(convertImageOrVideoUtil.convertImage(file.getBytes(), file, postCollections));
+            currentPost.setPostPicture(imageOrVideoUtil.convertImage(file.getBytes(), file, postCollections));
         }
 
         currentPost.setPostCaption(userPostDTO.getCaption());
@@ -141,7 +141,7 @@ public class PostServiceImpl implements PostService {
 
         List<Comment> comments = commentRepository.findAllByPost(post);
 
-        postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
+        postResponse.setPostBase64(imageOrVideoUtil.convertFileToBase64String(post.getPostPicture(), postBases64));
         postResponse.setCaption(post.getPostCaption());
         postResponse.setNumberOfLikes(post.getUserLike() == null ? 0 : post.getUserLike().size());
         postResponse.setLikes(post.getUserLike() == null ? new ArrayList<>() : insertUserLikeResponse(post.getUserLike()));
@@ -231,7 +231,7 @@ public class PostServiceImpl implements PostService {
         List<Comment> comments = commentRepository.findAllByPost(currentPost);
 
         PostResponse postResponse = new PostResponse();
-        postResponse.setPostBase64(convertImageOrVideoUtil.convertFileToBase64String(currentPost.getPostPicture(), postBases64));
+        postResponse.setPostBase64(imageOrVideoUtil.convertFileToBase64String(currentPost.getPostPicture(), postBases64));
         postResponse.setCaption(currentPost.getPostCaption());
         postResponse.setNumberOfLikes(currentPost.getUserLike() == null ? 0 : currentPost.getUserLike().size());
         postResponse.setLikes(insertUserLikeResponse(currentPost.getUserLike() == null ? new ArrayList<>() : currentPost.getUserLike()));

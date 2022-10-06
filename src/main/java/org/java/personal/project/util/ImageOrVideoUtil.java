@@ -1,6 +1,6 @@
 package org.java.personal.project.util;
 
-import org.java.personal.project.constant.MediaFormatEnum;
+import org.java.personal.project.enumeration.MediaFormatEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -9,32 +9,31 @@ import ws.schild.jave.*;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import static org.java.personal.project.constant.AppEnum.*;
+import static org.java.personal.project.enumeration.AppEnum.*;
 
 @Service
-public class ConvertImageOrVideoUtil {
+public class ImageOrVideoUtil {
 
     private final Environment env;
 
     @Autowired
-    public ConvertImageOrVideoUtil(Environment env) {
+    public ImageOrVideoUtil(Environment env) {
         this.env = env;
     }
 
     public List<String> convertFileToBase64String(List<String> postPictures, List<String> postBases64) throws IOException {
 
         for(String postPicture : postPictures){
-            String postFileInString = convertFileOneByOne(postPicture);
+            String postFileInString = convertOneFile(postPicture);
             postBases64.add(postFileInString);
         }
         return postBases64;
     }
 
-    public String convertFileOneByOne(String postPicture) throws IOException {
+    public String convertOneFile(String postPicture) throws IOException {
         File currentPostFile = new File(env.getProperty("postPicturePath") + postPicture);
         if(currentPostFile == null)
             return PICTURE_CANNOT_LOAD_PROPERLY.getMessage();
