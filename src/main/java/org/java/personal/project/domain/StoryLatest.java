@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.Date;
 import java.util.List;
@@ -18,8 +19,11 @@ import java.util.List;
 @RedisHash(value = "UserStory", timeToLive = 86400)
 public class StoryLatest {
     @Id
+    @Indexed
     private String storyId;
+    @Indexed
     private String userId;
+    @Indexed
     private String username;
     @CreatedDate
     private Date createdDate;

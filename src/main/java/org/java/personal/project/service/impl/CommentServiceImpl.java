@@ -1,8 +1,8 @@
 package org.java.personal.project.service.impl;
 
-import org.java.personal.project.dao.CommentRepository;
-import org.java.personal.project.dao.PostRepository;
-import org.java.personal.project.dao.UserRepository;
+import org.java.personal.project.repository.CommentRepository;
+import org.java.personal.project.repository.PostRepository;
+import org.java.personal.project.repository.UserRepository;
 import org.java.personal.project.domain.Comment;
 import org.java.personal.project.domain.DummyUser;
 import org.java.personal.project.domain.Post;

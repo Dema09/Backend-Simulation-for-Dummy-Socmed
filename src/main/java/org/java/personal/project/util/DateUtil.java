@@ -12,7 +12,7 @@ public class DateUtil {
 
     static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    public String countTimeDifferentThenReturn (Date startDate, Date endDate) throws ParseException {
+    public String countTimeDifferentThenReturnString(Date startDate, Date endDate) throws ParseException {
 
         String fromDateToString = sdf.format(startDate);
         String toDateToString = sdf.format(endDate);

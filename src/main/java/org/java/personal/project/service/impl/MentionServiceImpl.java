@@ -1,6 +1,6 @@
 package org.java.personal.project.service.impl;
 
-import org.java.personal.project.dao.UserRepository;
+import org.java.personal.project.repository.UserRepository;
 import org.java.personal.project.domain.DummyUser;
 import org.java.personal.project.dto.response.MentionUserHeadResponse;
 import org.java.personal.project.dto.response.MentionUserResponse;

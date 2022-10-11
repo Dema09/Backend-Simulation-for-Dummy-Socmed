@@ -1,6 +1,6 @@
 package org.java.personal.project.service.impl;
 
-import org.java.personal.project.dao.*;
+import org.java.personal.project.repository.*;
 import org.java.personal.project.domain.*;
 import org.java.personal.project.dto.request.post.*;
 import org.java.personal.project.dto.response.*;

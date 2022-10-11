@@ -4,15 +4,18 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.List;
 
+@Document(collection = "follower_and_following")
 public class FollowerAndFollowing {
     @Id
     private String followerAndFollowingId;
 
-    private DummyUser currentUser;
+    @DBRef
+    private DummyUser dummyUser;
 
     private List<DummyUser> followers;
 
@@ -27,9 +30,9 @@ public class FollowerAndFollowing {
     public FollowerAndFollowing() {
     }
 
-    public FollowerAndFollowing(String followerAndFollowingId, DummyUser currentUser, List<DummyUser> followers, List<DummyUser> followings) {
+    public FollowerAndFollowing(String followerAndFollowingId, DummyUser dummyUser, List<DummyUser> followers, List<DummyUser> followings) {
         this.followerAndFollowingId = followerAndFollowingId;
-        this.currentUser = currentUser;
+        this.dummyUser = dummyUser;
         this.followers = followers;
         this.followings = followings;
     }
@@ -42,12 +45,12 @@ public class FollowerAndFollowing {
         this.followerAndFollowingId = followerAndFollowingId;
     }
 
-    public DummyUser getCurrentUser() {
-        return currentUser;
+    public DummyUser getDummyUser() {
+        return dummyUser;
     }
 
-    public void setCurrentUser(DummyUser currentUser) {
-        this.currentUser = currentUser;
+    public void setDummyUser(DummyUser dummyUser) {
+        this.dummyUser = dummyUser;
     }
 
     public List<DummyUser> getFollowers() {
