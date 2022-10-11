@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/v1")
@@ -52,10 +53,16 @@ public class StoryController {
         return new ResponseEntity(getUserStoryResponse, getUserStoryResponse.getResponse());
     }
 
-    @GetMapping("/getAvailableStoryFromOther/{userId}")
-    public ResponseEntity getAvailableStoryFromOtherByItsFollowingByUserId(@PathVariable String userId) throws IOException {
+    @GetMapping("/getListStoryWithinOneDay/{userId}")
+    public ResponseEntity getAvailableStoryFromOtherByItsFollowingByUserId(@PathVariable String userId) throws IOException, ParseException {
         StatusResponse getAvailableStoryResponse = storyService.getAvailableStoryFromOtherWithin1DayByItsFollowing(userId);
         return new ResponseEntity(getAvailableStoryResponse, getAvailableStoryResponse.getResponse());
+    }
+
+    @GetMapping("/getFromRedis/{userId}")
+    public ResponseEntity getDataFromRedis(@PathVariable String userId){
+        StatusResponse statusResponse = storyService.getDataFromRedis(userId);
+        return new ResponseEntity(statusResponse, statusResponse.getResponse());
     }
 
 }

@@ -7,6 +7,7 @@ import org.java.personal.project.dto.response.StatusResponse;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 @Service
 public interface StoryService {
@@ -21,5 +22,7 @@ public interface StoryService {
 
     StatusResponse getCurrentStoryByStoryIdAndUserId(String postId, String userId) throws IOException;
 
-    StatusResponse getAvailableStoryFromOtherWithin1DayByItsFollowing(String userId) throws IOException;
+    StatusResponse getAvailableStoryFromOtherWithin1DayByItsFollowing(String userId) throws IOException, ParseException;
+
+    StatusResponse getDataFromRedis(String userId);
 }

@@ -1,13 +1,10 @@
-package org.java.personal.project.dao;
+package org.java.personal.project.repository;
 
 import org.java.personal.project.domain.DummyUser;
 import org.java.personal.project.domain.Story;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Repository

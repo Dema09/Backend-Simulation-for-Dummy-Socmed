@@ -1,4 +1,4 @@
-package org.java.personal.project.dao;
+package org.java.personal.project.repository;
 
 import org.java.personal.project.domain.PostOrStoryLocation;
 import org.springframework.data.mongodb.repository.MongoRepository;

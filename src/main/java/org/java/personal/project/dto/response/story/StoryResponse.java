@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class StoryResponse {
     private String storyId;
-    private String username;
     private String storyFileBase64;
     private String timeDiffToString;
     private List<String> mentionedUsers;
