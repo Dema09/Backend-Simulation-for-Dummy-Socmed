@@ -12,6 +12,7 @@ import org.java.personal.project.service.StoryService;
 import org.java.personal.project.util.DateUtil;
 import org.java.personal.project.util.ImageOrVideoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -88,6 +89,7 @@ public class StoryServiceImpl implements StoryService {
                         .storyFileName(currentStory.getStoryFileName())
                         .isCloseFriendMode(currentStory.isCloseFriendMode())
                         .mentionedUsername(currentStory.getMentionPeople())
+                        .createdDate(currentStory.getCreatedAt())
                         .build();
 
         storyLatestRepository.save(storyLatest);
@@ -221,6 +223,7 @@ public class StoryServiceImpl implements StoryService {
        }
 
     @Override
+    @Cacheable(value = "storyLatests", key = "#userId")
     public StatusResponse getAvailableStoryFromOtherWithin1DayByItsFollowing(String userId) throws IOException, ParseException {
         StatusResponse statusResponse = new StatusResponse();
         UserStoriesResponse userStoriesResponse = new UserStoriesResponse();
@@ -235,16 +238,24 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StatusResponse getDataFromRedis(String userId) {
+    public StatusResponse deleteStoryByUserIdAndStoryId(String storyId, String userId) {
         StatusResponse statusResponse = new StatusResponse();
-        List<StoryLatest> storyLatestList = new ArrayList<>();
 
-        Iterable<StoryLatest> storyLatests = storyLatestRepository.findAll();
-        while(storyLatests.iterator().hasNext()){
-            StoryLatest storyLatest = storyLatests.iterator().next();
-            storyLatestList.add(storyLatest);
-        }
-        return statusResponse.statusOk(storyLatestList);
+        DummyUser dummyUser = userRepository.findOne(userId);
+        if(dummyUser == null)
+            return statusResponse.statusNotFound("This User with Id " + userId + " doesn't exists!", null);
+
+        Story story = storyRepository.findStoryByStoryIdAndCurrentUserStory(storyId, dummyUser);
+        if(story == null)
+            return statusResponse.statusNotFound(STORY_NOT_FOUND.getMessage(), null);
+
+        StoryLatest storyLatest = storyLatestRepository.findOne(story.getStoryId());
+        if(storyLatest != null)
+            storyLatestRepository.delete(storyLatest);
+
+        storyRepository.delete(story);
+
+        return statusResponse.statusOk(SUCCESSFULLY_DELETE_STORY.getMessage());
     }
 
     private void mapStoryBasedOnCurrentUserFollowing(DummyUser dummyUser, UserStoriesResponse userStoriesResponse) throws IOException, ParseException {
@@ -253,7 +264,7 @@ public class StoryServiceImpl implements StoryService {
         FollowerAndFollowing followerAndFollowing = followerAndFollowingRepository.findFollowerAndFollowingByDummyUser(dummyUser);
         for(DummyUser currentFollowingUser : followerAndFollowing.getFollowings()){
             List<StoryLatest> storyLatests = storyLatestRepository.findAllByUserId(currentFollowingUser.getId());
-            if(storyLatests != null)
+            if(!storyLatests.isEmpty())
                 headStoryResponses.add(mapHeadStoryResponse(storyLatests, currentFollowingUser));
         }
         userStoriesResponse.setStoryResponses(headStoryResponses);
@@ -277,7 +288,7 @@ public class StoryServiceImpl implements StoryService {
             storyResponse.setStoryId(storyLatest.getStoryId());
             storyResponse.setStoryFileBase64(imageOrVideoUtil.convertOneFile(storyLatest.getStoryFileName()));
             storyResponse.setTimeDiffToString(dateUtil.countTimeDifferentThenReturnString(storyLatest.getCreatedDate(), new Date()));
-            storyResponse.setMentionedUsers(loadToMentionedUserResponse(storyLatest));
+            storyResponse.setMentionedUsers(storyLatest.getMentionedUsername() != null ? loadToMentionedUserResponse(storyLatest) : null);
 
             storyResponses.add(storyResponse);
         }
@@ -348,5 +359,4 @@ public class StoryServiceImpl implements StoryService {
         }
         return mentionUsers;
     }
-
 }

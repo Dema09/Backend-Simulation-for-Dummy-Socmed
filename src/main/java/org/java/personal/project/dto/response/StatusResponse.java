@@ -3,7 +3,11 @@ package org.java.personal.project.dto.response;
 import org.java.personal.project.enumeration.StatusEnum;
 import org.springframework.http.HttpStatus;
 
-public class StatusResponse extends BaseResponse{
+import java.io.Serializable;
+
+public class StatusResponse extends BaseResponse implements Serializable {
+    private static final long serialVersionUID = 7156526077883281623L;
+
     private String message;
     private Object data;
 
