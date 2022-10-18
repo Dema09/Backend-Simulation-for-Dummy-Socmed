@@ -59,10 +59,9 @@ public class StoryController {
         return new ResponseEntity(getAvailableStoryResponse, getAvailableStoryResponse.getResponse());
     }
 
-    @GetMapping("/getFromRedis/{userId}")
-    public ResponseEntity getDataFromRedis(@PathVariable String userId){
-        StatusResponse statusResponse = storyService.getDataFromRedis(userId);
+    @DeleteMapping("/deleteStory/{storyId}")
+    public ResponseEntity deleteStoryByStoryId(@PathVariable String storyId, @RequestHeader String userId){
+        StatusResponse statusResponse = storyService.deleteStoryByUserIdAndStoryId(storyId, userId);
         return new ResponseEntity(statusResponse, statusResponse.getResponse());
     }
-
 }

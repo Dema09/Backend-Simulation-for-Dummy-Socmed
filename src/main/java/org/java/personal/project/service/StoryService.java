@@ -24,5 +24,5 @@ public interface StoryService {
 
     StatusResponse getAvailableStoryFromOtherWithin1DayByItsFollowing(String userId) throws IOException, ParseException;
 
-    StatusResponse getDataFromRedis(String userId);
+    StatusResponse deleteStoryByUserIdAndStoryId(String storyId, String userId);
 }
