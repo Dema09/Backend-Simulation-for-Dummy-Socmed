@@ -124,7 +124,7 @@ public class StoryServiceImpl implements StoryService {
             return statusResponse.statusNotFound(THIS_USER_WITH_ID.getMessage(), userId + IS_NOT_EXISTS.getMessage());
 
         List<Story> currentUsersStories = storyRepository.findStoriesByCurrentUserStory(currentUser);
-        if(currentUsersStories.size() == 0 || currentUsersStories == null)
+        if(currentUsersStories.isEmpty())
             return statusResponse.statusOk(new ArrayList<>());
 
         for(Story story : currentUsersStories){

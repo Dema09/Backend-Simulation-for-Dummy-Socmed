@@ -1,5 +1,6 @@
 package org.java.personal.project.domain;
 
+import lombok.Builder;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
